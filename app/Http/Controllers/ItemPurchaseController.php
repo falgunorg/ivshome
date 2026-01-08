@@ -24,9 +24,7 @@ class ItemPurchaseController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        $items = Item::orderBy('name', 'ASC')
-                ->get()
-                ->pluck('name', 'id');
+        $items = Item::orderBy('name', 'ASC')->get(['id', 'name', 'serial_number']);
 
         $suppliers = Supplier::orderBy('name', 'ASC')
                 ->get()

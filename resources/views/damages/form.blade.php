@@ -17,9 +17,11 @@
                     <div class="form-group">
                         <label>Items</label>
                         @php
-                        // Transform the array/collection to "ID | Name" format
-                        $formattedItems = collect($items)->mapWithKeys(function ($name, $id) {
-                        return [$id => $id . ' | ' . $name];
+                        // Now $item is a real object, so we can access ->id and ->serial_number
+                        $formattedItems = $items->mapWithKeys(function ($item) {
+                        return [
+                        $item->id => ($item->serial_number ?? '00000') . ' | ' . $item->name
+                        ];
                         })->toArray();
                         @endphp
 

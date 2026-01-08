@@ -33,6 +33,8 @@
                         <select name="role" id="role" class="form-control" required>
                             <option value="admin">Admin</option>
                             <option value="staff">Staff</option>
+                            <option value="incharge">In-Charge</option>
+                            <option value="manager">Manager</option>
                         </select>
                     </div>
                 </div>

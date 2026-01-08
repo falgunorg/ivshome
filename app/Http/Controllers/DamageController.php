@@ -22,8 +22,8 @@ class DamageController extends Controller {
      * Display a listing of the resource.
      */
     public function index() {
-        $items = Item::orderBy('name', 'ASC')
-                ->pluck('name', 'id');
+        // Use get() instead of pluck() to keep all column data
+        $items = Item::orderBy('name', 'ASC')->get(['id', 'name', 'serial_number']);
 
         $invoice_data = Damage::latest()->get();
 

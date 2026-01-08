@@ -123,7 +123,7 @@
                 <div style="display: inline-block;">
                     {!! QrCode::size(80)->generate(Request::url()); !!}
                 </div>
-                <p style="font-size: 8px; margin: 2px 0 0 0; text-transform: uppercase;">Scan to Verify</p>
+                <p style="font-size: 12px; font-weight: bold; text-transform: uppercase;">{{$item->serial_number}}</p>
             </div>
         </div>
     </div>

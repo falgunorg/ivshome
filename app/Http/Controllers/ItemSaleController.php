@@ -25,9 +25,7 @@ class ItemSaleController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        $items = Item::orderBy('name', 'ASC')
-                ->get()
-                ->pluck('name', 'id');
+         $items = Item::orderBy('name', 'ASC')->get(['id', 'name', 'serial_number']);
 
         $customers = Customer::orderBy('name', 'ASC')
                 ->get()

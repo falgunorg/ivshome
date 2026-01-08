@@ -17,22 +17,24 @@
 
                     <div class="box-body">
                         <div class="form-group">
-                            <label>Items</label>
-                            @php
-                            // Transform the array/collection to "ID | Name" format
-                            $formattedItems = collect($items)->mapWithKeys(function ($name, $id) {
-                            return [$id => $id . ' | ' . $name];
-                            })->toArray();
-                            @endphp
+                        <label>Items</label>
+                        @php
+                        // Now $item is a real object, so we can access ->id and ->serial_number
+                        $formattedItems = $items->mapWithKeys(function ($item) {
+                        return [
+                        $item->id => ($item->serial_number ?? '00000') . ' | ' . $item->name
+                        ];
+                        })->toArray();
+                        @endphp
 
-                            {!! Form::select('item_id', $formattedItems, null, [
-                            'class' => 'form-control select', 
-                            'placeholder' => '-- Choose Item --', 
-                            'id' => 'item_id', 
-                            'required'
-                            ]) !!}
-                            <span class="help-block with-errors"></span>
-                        </div>
+                        {!! Form::select('item_id', $formattedItems, null, [
+                        'class' => 'form-control select', 
+                        'placeholder' => '-- Choose Item --', 
+                        'id' => 'item_id', 
+                        'required'
+                        ]) !!}
+                        <span class="help-block with-errors"></span>
+                    </div>
 
                         <div class="form-group">
                             <label >Supplier</label>

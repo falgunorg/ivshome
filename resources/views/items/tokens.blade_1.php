@@ -48,7 +48,7 @@
                 <tbody>
                     @foreach($items as $item)
                     <tr>
-                        <td>#{{ $item->serial_number }}</td>
+                        <td>#{{ $item->id }}</td>
                         <td class="item-name-cell"><strong>{{ $item->name }}</strong></td>
                         <td>
                             <img src="{{ $item->show_photo }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
@@ -104,72 +104,56 @@
      * Fixes the "not working" issue by selecting the SVG directly 
      * even if the row is hidden by pagination.
      */
-   function downloadQR(id, name, serial) {
+    function downloadQR(id, name, serial) {
+    // Select the SVG from the visible container
     const qrDiv = document.getElementById(`visible-qr-${id}`);
     const svgElement = qrDiv.querySelector('svg');
-    
     if (!svgElement) {
-        alert("Error: QR Code not found!");
-        return;
+    alert("Error: QR Code not found!");
+    return;
     }
 
-    const size = 600; // High resolution
+    // 1. Setup high-res constants
+    const qrSize = 600;
+    const padding = 100; // Extra height for the text
+    const canvasWidth = qrSize;
+    const canvasHeight = qrSize + padding;
+    // 2. Clone and Prepare SVG
     const clonedSvg = svgElement.cloneNode(true);
-    clonedSvg.setAttribute("width", size);
-    clonedSvg.setAttribute("height", size);
-    
+    clonedSvg.setAttribute("width", qrSize);
+    clonedSvg.setAttribute("height", qrSize);
     const svgData = new XMLSerializer().serializeToString(clonedSvg);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     const img = new Image();
     const svgBlob = new Blob([svgData], {type: "image/svg+xml;charset=utf-8"});
     const url = URL.createObjectURL(svgBlob);
-
     img.onload = function() {
-        canvas.width = size;
-        canvas.height = size;
-
-        // 1. Background
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, size, size);
-
-        // 2. Draw the QR Code
-        ctx.drawImage(img, 0, 0, size, size);
-
-        // 3. Create the "Logo" space in the middle
-        const boxWidth = 160; 
-        const boxHeight = 60;
-        const centerX = (size - boxWidth) / 2;
-        const centerY = (size - boxHeight) / 2;
-
-        // Draw a white rectangle to clear the QR bits behind the text
-        ctx.fillStyle = "white";
-        ctx.roundRect ? ctx.roundRect(centerX, centerY, boxWidth, boxHeight, 10) : ctx.fillRect(centerX, centerY, boxWidth, boxHeight);
-        ctx.fill();
-
-        // Optional: Add a small border around the middle box
-        ctx.strokeStyle = "#eeeeee";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        // 4. Draw the Serial Number inside the box
-        ctx.fillStyle = "black";
-        ctx.font = "bold 32px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(serial, size / 2, size / 2);
-
-        // 5. Download
-        const pngUrl = canvas.toDataURL("image/png");
-        const downloadLink = document.createElement("a");
-        downloadLink.href = pngUrl;
-        downloadLink.download = `${serial}.png`;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        URL.revokeObjectURL(url);
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    // 3. Fill Background (White)
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // 4. Draw the QR Code
+    ctx.drawImage(img, 0, 0, qrSize, qrSize);
+    // 5. Draw the Serial Number Text
+    ctx.fillStyle = "black";
+    ctx.font = "bold 40px Arial"; // Adjust size as needed
+    ctx.textAlign = "center";
+    // Place text in the middle of the bottom padding area
+    ctx.fillText(serial, canvasWidth / 2, qrSize + (padding / 1.5));
+    // 6. Trigger Download
+    const pngUrl = canvas.toDataURL("image/png");
+    const downloadLink = document.createElement("a");
+    downloadLink.href = pngUrl;
+    // Filename is now the serial number
+    downloadLink.download = `${serial}.png`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    URL.revokeObjectURL(url);
     };
     img.src = url;
-}
+    }
 </script>
 @endsection

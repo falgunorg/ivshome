@@ -19,8 +19,8 @@
 
 
     <!-- /.box-header -->
-    <div class="box-body">
-        <table id="items-table" class="table table-bordered table-hover table-striped">
+    <div class="box-body table-responsive">
+        <table id="items-table" class="table table-bordered table-hover table-striped table-responsive">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -74,7 +74,7 @@
                     serverSide: true,
                     ajax: "{{ route('api.items') }}",
                     columns: [
-                        {data: 'id', name: 'id'},
+                        {data: 'serial_number', name: 'serial_number'},
                         {data: 'name', name: 'name'},
                         {data: 'price', name: 'price'},
                         {data: 'description', name: 'description'},

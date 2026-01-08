@@ -9,6 +9,17 @@ class Item extends Model {
     protected $fillable = ['category_id', 'name', 'user_id', 'description', 'condition', 'location', 'price', 'image', 'qty'];
     protected $hidden = ['created_at', 'updated_at'];
 
+    protected static function booted() {
+        static::creating(function ($item) {
+            // Get the last ID or set to 0 if table is empty
+            $lastItem = static::orderBy('id', 'desc')->first();
+            $nextId = $lastItem ? $lastItem->id + 1 : 1;
+
+            // str_pad(string, length, padding_string, type)
+            $item->serial_number = str_pad($nextId, 5, '0', STR_PAD_LEFT);
+        });
+    }
+
     public function getShowPhotoAttribute() { // Changed from getImagePathAttribute
         if (!$this->image) {
             return asset('upload/no-image.png');

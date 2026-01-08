@@ -222,6 +222,10 @@ class ItemController extends Controller {
                         ->addColumn('by', function ($item) {
                             return optional($item->user)->name ?? 'System';
                         })
+                        ->addColumn('serial_number', function ($item) {
+                            return '<a href="' . route('items.show', $item->id) . '" class="btn btn-link btn-xs">'
+                                    . $item->serial_number . '</a>';
+                        })
                         ->addColumn('show_photo', function ($item) {
                             return '<img class="rounded-square" width="50" height="50" src="' . $item->show_photo . '" alt="">';
                         })
@@ -234,7 +238,7 @@ class ItemController extends Controller {
                                     '<i class="glyphicon glyphicon-trash"></i> Delete</a>';
                         })
                         // Combine all raw columns here
-                        ->rawColumns(['show_photo', 'action'])
+                        ->rawColumns(['show_photo', 'action', 'serial_number'])
                         ->make(true);
     }
 }
