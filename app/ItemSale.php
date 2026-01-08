@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ItemSale extends Model {
 
     protected $table = 'item_sale';
-    protected $fillable = ['item_id', 'customer_id', 'qty', 'date'];
+    protected $fillable = ['item_id', 'customer_id', 'user_id', 'qty', 'date'];
     protected $hidden = ['created_at', 'updated_at'];
 
     public function item() {
@@ -16,5 +16,9 @@ class ItemSale extends Model {
 
     public function customer() {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function user() {
+        return $this->belongsTo(User::class);
     }
 }

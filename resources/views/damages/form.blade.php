@@ -15,13 +15,21 @@
                     <input type="hidden" id="id" name="id">
 
                     <div class="form-group">
-                        <label>Item</label>
-                        {!! Form::select('item_id', $items, null, [
-                        'class' => 'form-control',
-                        'placeholder' => '-- Choose Item --',
-                        'id' => 'item_id',
+                        <label>Items</label>
+                        @php
+                        // Transform the array/collection to "ID | Name" format
+                        $formattedItems = collect($items)->mapWithKeys(function ($name, $id) {
+                        return [$id => $id . ' | ' . $name];
+                        })->toArray();
+                        @endphp
+
+                        {!! Form::select('item_id', $formattedItems, null, [
+                        'class' => 'form-control select', 
+                        'placeholder' => '-- Choose Item --', 
+                        'id' => 'item_id', 
                         'required'
                         ]) !!}
+                        <span class="help-block with-errors"></span>
                     </div>
 
                     <div class="form-group">

@@ -34,6 +34,7 @@
                     <th>Customer</th>
                     <th>Qty.</th>
                     <th>Date</th>
+                    <th>By</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -163,6 +164,7 @@
                 {data: 'customer_name', name: 'customer_name'},
                 {data: 'qty', name: 'qty'},
                 {data: 'date', name: 'date'},
+                {data: 'by', name: 'by'},
                 {data: 'action', name: 'action', orderable: false, searchable: false}
             ]
         });

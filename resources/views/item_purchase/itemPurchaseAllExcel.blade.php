@@ -1,75 +1,81 @@
 {{--<!doctype html>--}}
 {{--<html lang="en">--}}
 {{--<head>--}}
-    {{--<meta charset="UTF-8">--}}
-    {{--<meta name="viewport"--}}
-          {{--content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">--}}
-    {{--<meta http-equiv="X-UA-Compatible" content="ie=edge">--}}
-    {{--<link rel="stylesheet" href="{{ asset('assets/bower_components/bootstrap/dist/css/bootstrap.min.css ')}}">--}}
-    {{--<!-- Font Awesome -->--}}
-    {{--<link rel="stylesheet" href="{{ asset('assets/bower_components/font-awesome/css/font-awesome.min.css')}} ">--}}
-    {{--<!-- Ionicons -->--}}
-    {{--<link rel="stylesheet" href="{{ asset('assets/bower_components/Ionicons/css/ionicons.min.css')}} ">--}}
+{{--<meta charset="UTF-8">--}}
+{{--<meta name="viewport"--}}
+{{--content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">--}}
+{{--<meta http-equiv="X-UA-Compatible" content="ie=edge">--}}
+{{--<link rel="stylesheet" href="{{ asset('assets/bower_components/bootstrap/dist/css/bootstrap.min.css ')}}">--}}
+{{--<!-- Font Awesome -->--}}
+{{--<link rel="stylesheet" href="{{ asset('assets/bower_components/font-awesome/css/font-awesome.min.css')}} ">--}}
+{{--<!-- Ionicons -->--}}
+{{--<link rel="stylesheet" href="{{ asset('assets/bower_components/Ionicons/css/ionicons.min.css')}} ">--}}
 
-    {{--<title>Item Purchase Exports All PDF</title>--}}
+{{--<title>Item Purchase Exports All PDF</title>--}}
 {{--</head>--}}
 {{--<body>--}}
-    <style>
-        #item-purchase {
-            font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-            border-collapse: collapse;
-            width: 100%;
-        }
+<style>
+    #item-purchase {
+        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
 
-        #item-purchase td, #item-purchase th {
-            border: 1px solid #ddd;
-            padding: 8px;
-        }
+    #item-purchase td, #item-purchase th {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
 
-        #item-purchase tr:nth-child(even){background-color: #f2f2f2;}
+    #item-purchase tr:nth-child(even){
+        background-color: #f2f2f2;
+    }
 
-        #item-purchase tr:hover {background-color: #ddd;}
+    #item-purchase tr:hover {
+        background-color: #ddd;
+    }
 
-        #item-purchase th {
-            padding-top: 12px;
-            padding-bottom: 12px;
-            text-align: left;
-            background-color: #4CAF50;
-            color: white;
-        }
-    </style>
+    #item-purchase th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #4CAF50;
+        color: white;
+    }
+</style>
 
-    <table id="item-purchase" width="100%">
-        <thead>
+<table id="item-purchase" width="100%">
+    <thead>
         <tr>
             <td>ID</td>
             <td>Item</td>
             <td>Supplier</td>
             <td>Quantity</td>
             <td>Date</td>
+            <td>By</td>
         </tr>
-        </thead>
-        @foreach($item_purchase as $p)
-            <tbody>
-            <tr>
-                <td>{{ $p->id }}</td>
-                <td>{{ $p->item->name }}</td>
-                <td>{{ $p->supplier->name }}</td>
-                <td>{{ $p->qty }}</td>
-                <td>{{ $p->date }}</td>
-            </tr>
-            </tbody>
-        @endforeach
+    </thead>
+    @foreach($item_purchase as $p)
+    <tbody>
+        <tr>
+            <td>{{ $p->id }}</td>
+            <td>{{ $p->item->name }}</td>
+            <td>{{ $p->supplier->name }}</td>
+            <td>{{ $p->qty }}</td>
+            <td>{{ $p->date }}</td>
+            <td>{{ $p->user->name }}</td>
+        </tr>
+    </tbody>
+    @endforeach
 
-    </table>
+</table>
 
 
-    {{--<!-- jQuery 3 -->--}}
-    {{--<script src="{{  asset('assets/bower_components/jquery/dist/jquery.min.js') }} "></script>--}}
-    {{--<!-- Bootstrap 3.3.7 -->--}}
-    {{--<script src="{{  asset('assets/bower_components/bootstrap/dist/js/bootstrap.min.js') }} "></script>--}}
-    {{--<!-- AdminLTE App -->--}}
-    {{--<script src="{{  asset('assets/dist/js/adminlte.min.js') }}"></script>--}}
+{{--<!-- jQuery 3 -->--}}
+{{--<script src="{{  asset('assets/bower_components/jquery/dist/jquery.min.js') }} "></script>--}}
+{{--<!-- Bootstrap 3.3.7 -->--}}
+{{--<script src="{{  asset('assets/bower_components/bootstrap/dist/js/bootstrap.min.js') }} "></script>--}}
+{{--<!-- AdminLTE App -->--}}
+{{--<script src="{{  asset('assets/dist/js/adminlte.min.js') }}"></script>--}}
 {{--</body>--}}
 {{--</html>--}}
 

@@ -16,6 +16,7 @@ class CreateItemPurchaseTable extends Migration {
             $table->increments('id');
             $table->integer('item_id')->unsigned();
             $table->integer('supplier_id')->unsigned();
+            $table->integer('user_id')->unsigned();
             $table->integer('qty');
             $table->date('date');
             $table->timestamps();

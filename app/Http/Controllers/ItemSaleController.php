@@ -10,6 +10,8 @@ use App\ItemSale;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use PDF;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class ItemSaleController extends Controller {
 
@@ -52,22 +54,38 @@ class ItemSaleController extends Controller {
      */
     public function store(Request $request) {
         $this->validate($request, [
-            'item_id' => 'required',
+            'item_id' => 'required|exists:items,id',
             'customer_id' => 'required',
-            'qty' => 'required',
-            'date' => 'required'
+            'qty' => 'required|integer|min:1',
+            'date' => 'required|date'
         ]);
 
-        ItemSale::create($request->all());
+        // Start a transaction to ensure both operations succeed or fail together
+        return DB::transaction(function () use ($request) {
 
-        $item = Item::findOrFail($request->item_id);
-        $item->qty -= $request->qty;
-        $item->save();
+                    // 1. Find the item and check stock availability
+                    $item = Item::findOrFail($request->item_id);
 
-        return response()->json([
-                    'success' => true,
-                    'message' => 'Items Out Created'
-        ]);
+                    if ($item->qty < $request->qty) {
+                        return response()->json([
+                                    'success' => false,
+                                    'message' => 'Insufficient stock!'
+                                        ], 400);
+                    }
+
+                    // 2. Create the Sale record
+                    $data = $request->all();
+                    $data['user_id'] = Auth::id();
+                    ItemSale::create($data);
+
+                    // 3. Update the Inventory
+                    $item->decrement('qty', $request->qty);
+
+                    return response()->json([
+                                'success' => true,
+                                'message' => 'Items Out Created'
+                    ]);
+                });
     }
 
     /**
@@ -144,6 +162,9 @@ class ItemSaleController extends Controller {
                         ->addColumn('customer_name', function ($item) {
                             return $item->customer->name;
                         })
+                        ->addColumn('by', function ($item) {
+                            return $item->user->name;
+                        })
                         ->addColumn('action', function ($item) {
                             return'<a onclick="editForm(' . $item->id . ')" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-edit"></i> Edit</a> ' .
                                     '<a onclick="deleteData(' . $item->id . ')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i> Delete</a>';
@@ -152,13 +173,13 @@ class ItemSaleController extends Controller {
     }
 
     public function exportItemSaleAll() {
-        $item_sale = ItemSale::all();
+        $item_sale = ItemSale::with('item', 'user', 'customer')->get();
         $pdf = PDF::loadView('item_sale.itemSaleAllPDF', compact('item_sale'));
         return $pdf->download('item_out.pdf');
     }
 
     public function exportItemSale($id) {
-        $item_sale = ItemSale::findOrFail($id);
+        $item_sale = ItemSale::with('item', 'user', 'customer')->findOrFail($id);
         $pdf = PDF::loadView('item_sale.itemSalePDF', compact('item_sale'));
         return $pdf->download($item_sale->id . '_item_out.pdf');
     }

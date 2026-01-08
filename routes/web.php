@@ -43,6 +43,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::resource('items', 'ItemController');
     Route::get('/apiItems', 'ItemController@apiItems')->name('api.items');
+    Route::get('/tokens', 'ItemController@tokens')->name('tokens');
 
     Route::resource('itemsOut', 'ItemSaleController');
     Route::get('/apiItemsOut', 'ItemSaleController@apiItemsOut')->name('api.itemsOut');

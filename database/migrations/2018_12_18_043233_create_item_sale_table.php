@@ -17,6 +17,7 @@ class CreateItemSaleTable extends Migration
             $table->increments('id');
             $table->integer('item_id')->unsigned();
             $table->integer('customer_id')->unsigned();
+            $table->integer('user_id')->unsigned();
             $table->integer('qty');
             $table->date('date');
             $table->timestamps();

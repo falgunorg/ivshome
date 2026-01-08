@@ -26,9 +26,13 @@
         padding: 8px;
     }
 
-    #item-purchase tr:nth-child(even){background-color: #f2f2f2;}
+    #item-purchase tr:nth-child(even){
+        background-color: #f2f2f2;
+    }
 
-    #item-purchase tr:hover {background-color: #ddd;}
+    #item-purchase tr:hover {
+        background-color: #ddd;
+    }
 
     #item-purchase th {
         padding-top: 12px;
@@ -41,24 +45,27 @@
 
 <table id="item-purchase" width="100%">
     <thead>
-    <tr>
-        <td>ID</td>
-        <td>Item</td>
-        <td>Customer</td>
-        <td>Quantity</td>
-        <td>Date</td>
-    </tr>
+        <tr>
+            <td>ID</td>
+            <td>Item</td>
+            <td>Customer</td>
+            <td>Quantity</td>
+            <td>Date</td>
+            <td>By</td>
+
+        </tr>
     </thead>
     @foreach($item_sale as $p)
-        <tbody>
+    <tbody>
         <tr>
             <td>{{ $p->id }}</td>
             <td>{{ $p->item->name }}</td>
             <td>{{ $p->customer->name }}</td>
             <td>{{ $p->qty }}</td>
             <td>{{ $p->date }}</td>
+            <td>{{ $p->user->name }}</td>
         </tr>
-        </tbody>
+    </tbody>
     @endforeach
 
 </table>

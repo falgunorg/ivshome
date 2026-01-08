@@ -7,6 +7,7 @@ use App\Item;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class ItemController extends Controller {
 
@@ -28,6 +29,39 @@ class ItemController extends Controller {
         return view('items.index', compact('category'));
     }
 
+    public function tokens(Request $request) {
+        // 1. Start the query (do not use ->get() yet)
+        $query = Item::with(['category', 'user']);
+
+        // 2. Filter by Search / Name
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // 3. Filter by Category
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        // 4. Filter by Condition
+        if ($request->filled('condition')) {
+            $query->where('condition', $request->condition);
+        }
+
+        // 5. Execute with Pagination (better for lists)
+        $items = $query->latest()->paginate(20);
+
+        // Also fetch categories for the dropdown menu
+        $categories = \App\Category::all();
+
+        return view('items.tokens', compact('items', 'categories'));
+    }
+
+//    public function tokens() {
+//        $items = Item::with('category', 'user')->get();
+//        return view('items.tokens', compact('items'));
+//    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -44,34 +78,43 @@ class ItemController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
-        $category = Category::orderBy('name', 'ASC')
-                ->get()
-                ->pluck('name', 'id');
-
+        // 1. Validation
         $this->validate($request, [
-            'name' => 'required|string',
-            'description' => 'nullable',
-            'condition' => 'nullable',
-            'location' => 'nullable',
-            'price' => 'nullable',
-            'qty' => 'required',
-            'image' => 'nullable',
-            'category_id' => 'required',
+            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'qty' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate it is actually an image
+            'description' => 'nullable|string',
+            'condition' => 'nullable|string',
+            'location' => 'nullable|string',
         ]);
 
         $input = $request->all();
-        $input['image'] = null;
+        $input['user_id'] = Auth::id();
 
+        // 2. Optimized Image Handling
         if ($request->hasFile('image')) {
-            $input['image'] = '/upload/items/' . Str::slug($input['name'], '-') . '.' . $request->image->getClientOriginalExtension();
-            $request->image->move(public_path('/upload/items/'), $input['image']);
+            $file = $request->file('image');
+
+            // Create a unique name: name-timestamp.extension
+            $fileName = Str::slug($request->name, '-') . '-' . time() . '.' . $file->getClientOriginalExtension();
+
+            // Move file
+            $file->move(public_path('upload/items'), $fileName);
+
+            // Save only the filename to the database
+            $input['image'] = $fileName;
+        } else {
+            $input['image'] = null;
         }
 
+        // 3. Create record
         Item::create($input);
 
         return response()->json([
                     'success' => true,
-                    'message' => 'Items Created'
+                    'message' => 'Item Created Successfully'
         ]);
     }
 
@@ -82,7 +125,8 @@ class ItemController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show($id) {
-        //
+        $item = Item::with('category', 'user')->findOrFail($id);
+        return view('items.show', compact('item'));
     }
 
     /**
@@ -108,37 +152,27 @@ class ItemController extends Controller {
      */
     public function update(Request $request, $id) {
         $this->validate($request, [
-            'name' => 'required|string',
-            'description' => 'nullable',
-            'condition' => 'nullable',
-            'location' => 'nullable',
-            'price' => 'nullable',
-            'qty' => 'required',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp',
-            'category_id' => 'required',
+            'name' => 'required|string|max:255',
+            'qty' => 'required|numeric|min:0',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
         $item = Item::findOrFail($id);
-
-        // Do NOT overwrite image accidentally
         $input = $request->except('image');
 
         if ($request->hasFile('image')) {
-
-            // ✅ Delete old image correctly
-            if ($item->image && file_exists(public_path($item->image))) {
-                unlink(public_path($item->image));
+            // 1. Delete old image if it exists
+            // We use trim to ensure no leading slashes cause issues with public_path()
+            if ($item->image && file_exists(public_path(trim($item->image, '/')))) {
+                unlink(public_path(trim($item->image, '/')));
             }
 
-            // ✅ Generate new image name
-            $fileName = Str::slug($request->name)
-                    . '-' . time()
-                    . '.' . $request->image->getClientOriginalExtension();
-
-            // ✅ Move new image
+            // 2. Prepare new image
+            $fileName = Str::slug($request->name) . '-' . time() . '.' . $request->image->getClientOriginalExtension();
             $request->image->move(public_path('upload/items'), $fileName);
 
-            // ✅ Save correct DB path
+            // 3. Save relative path (standard practice)
             $input['image'] = 'upload/items/' . $fileName;
         }
 
@@ -159,35 +193,48 @@ class ItemController extends Controller {
     public function destroy($id) {
         $item = Item::findOrFail($id);
 
-        if (!$item->image == NULL) {
-            unlink(public_path($item->image));
+        // Check if the image field is not empty and the file actually exists on the disk
+        if (!empty($item->image)) {
+            $path = public_path(trim($item->image, '/'));
+            if (is_file($path)) {
+                unlink($path);
+            }
         }
 
-        Item::destroy($id);
+        $item->delete(); // Use delete() on the instance since we already found it
 
         return response()->json([
                     'success' => true,
-                    'message' => 'Items Deleted'
+                    'message' => 'Item and associated image deleted'
         ]);
     }
 
     public function apiItems() {
-        $item = Item::all();
+        // Use Eager Loading (with) to speed up the database
+        // Use query() instead of all() for better DataTables performance
+        $items = Item::with(['category', 'user'])->select('items.*');
 
-        return Datatables::of($item)
+        return Datatables::of($items)
                         ->addColumn('category_name', function ($item) {
-                            return $item->category->name;
+                            // Use optional() to prevent crashes if category is missing
+                            return optional($item->category)->name ?? 'Uncategorized';
+                        })
+                        ->addColumn('by', function ($item) {
+                            return optional($item->user)->name ?? 'System';
                         })
                         ->addColumn('show_photo', function ($item) {
-                            if ($item->image == NULL) {
-                                return 'No Image';
-                            }
-                            return '<img class="rounded-square" width="50" height="50" src="' . url($item->image) . '" alt="">';
+                            return '<img class="rounded-square" width="50" height="50" src="' . $item->show_photo . '" alt="">';
                         })
                         ->addColumn('action', function ($item) {
-                            return'<a onclick="editForm(' . $item->id . ')" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-edit"></i> Edit</a> ' .
-                                    '<a onclick="deleteData(' . $item->id . ')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i> Delete</a>';
+                            return '<a href="' . route('items.show', $item->id) . '" class="btn btn-info btn-xs">' .
+                                    '<i class="glyphicon glyphicon-eye-open"></i> Show</a> ' .
+                                    '<a onclick="editForm(' . $item->id . ')" class="btn btn-primary btn-xs">' .
+                                    '<i class="glyphicon glyphicon-edit"></i> Edit</a> ' .
+                                    '<a onclick="deleteData(' . $item->id . ')" class="btn btn-danger btn-xs">' .
+                                    '<i class="glyphicon glyphicon-trash"></i> Delete</a>';
                         })
-                        ->rawColumns(['category_name', 'show_photo', 'action'])->make(true);
+                        // Combine all raw columns here
+                        ->rawColumns(['show_photo', 'action'])
+                        ->make(true);
     }
 }
