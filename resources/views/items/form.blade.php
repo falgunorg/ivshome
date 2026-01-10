@@ -52,9 +52,35 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Location</label>
-                            <input type="text" class="form-control" id="location" name="location">
-                            <span class="help-block with-errors"></span>
+                            <label>Trackable (Storage System?)</label>
+                            <select class="form-control" id="trackable" name="trackable">
+                                <option value="No">No (Manual Location)</option>
+                                <option value="Yes">Yes (Cabinet & Drawer)</option>
+                            </select>
+                        </div>
+
+                        <div id="location_group" class="form-group">
+                            <label>General Location</label>
+                            <input type="text" class="form-control" id="location" name="location" placeholder="e.g. Front Desk">
+                        </div>
+
+                        <div id="storage_group" style="display:none;">
+                            <div class="form-group">
+                                <label>Cabinet</label>
+                                <select class="form-control" id="cabinet_id" name="cabinet_id">
+                                    <option value="" selected disabled>-- Select Cabinet --</option>
+                                    @foreach($cabinets as $id => $title)
+                                    <option value="{{ $id }}">{{ $title }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Drawer</label>
+                                <select class="form-control" id="drawer_id" name="drawer_id">
+                                    <option value="" selected disabled>-- Select Cabinet First --</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="form-group">

@@ -64,5 +64,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/exportDamage/{id}', 'DamageController@exportDamage')->name('exportPDF.damage');
 
     Route::resource('user', 'UserController');
-    Route::get('/apiUser', 'UserController@apiUsers')->name('api.users');
+    Route::get('/apiUsers', 'UserController@apiUsers')->name('api.users');
+
+    // Cabinet Routes (You likely already have this)
+    Route::resource('cabinets', 'CabinetController');
+    Route::get('apiCabinets', 'CabinetController@apiCabinets')->name('api.cabinets');
+    Route::get('api/cabinet-details/{id}', 'CabinetController@getCabinetDetails');
+
+// Drawer Routes (Add these)
+    Route::post('drawers', 'CabinetController@storeDrawer')->name('drawers.store');
+    Route::delete('drawers/{id}', 'CabinetController@deleteDrawer')->name('drawers.destroy');
 });

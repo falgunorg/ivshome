@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Category;
 use App\Item;
+use App\Cabinet;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use App\ItemLog;
 
 class ItemController extends Controller {
 
@@ -21,12 +23,11 @@ class ItemController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        $category = Category::orderBy('name', 'ASC')
-                ->get()
-                ->pluck('name', 'id');
+        $category = Category::orderBy('name', 'ASC')->pluck('name', 'id');
+        // Fetch cabinets for the dropdown
+        $cabinets = Cabinet::orderBy('title', 'ASC')->pluck('title', 'id');
 
-        $producs = Item::all();
-        return view('items.index', compact('category'));
+        return view('items.index', compact('category', 'cabinets'));
     }
 
     public function tokens(Request $request) {
@@ -79,18 +80,22 @@ class ItemController extends Controller {
      */
     public function store(Request $request) {
         // 1. Validation
-        $this->validate($request, [
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'qty' => 'required|numeric|min:0',
             'price' => 'nullable|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate it is actually an image
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'description' => 'nullable|string',
             'condition' => 'nullable|string',
-            'location' => 'nullable|string',
+            'trackable' => 'required|in:Yes,No',
+            'location' => 'required_if:trackable,No|nullable|string',
+            'cabinet_id' => 'required_if:trackable,Yes|nullable|exists:cabinets,id',
+            'drawer_id' => 'required_if:trackable,Yes|nullable|exists:drawers,id',
         ]);
 
-        $input = $request->all();
+        // Initialize input with validated data
+        $input = $validatedData;
         $input['user_id'] = Auth::id();
 
         // 2. Optimized Image Handling
@@ -100,17 +105,22 @@ class ItemController extends Controller {
             // Create a unique name: name-timestamp.extension
             $fileName = Str::slug($request->name, '-') . '-' . time() . '.' . $file->getClientOriginalExtension();
 
-            // Move file
+            // Move file to public/upload/items
             $file->move(public_path('upload/items'), $fileName);
 
             // Save only the filename to the database
             $input['image'] = $fileName;
-        } else {
-            $input['image'] = null;
         }
 
-        // 3. Create record
-        Item::create($input);
+        // 3. Create record (Capture the object in $item)
+        $item = Item::create($input);
+
+        // 4. Create Log (Fixed variable references)
+        ItemLog::create([
+            'item_id' => $item->id, // Now $item is defined
+            'user_id' => Auth::id(),
+            'message' => Auth::user()->name . ' Added ' . $item->name, // Fixed Auth::name and title
+        ]);
 
         return response()->json([
                     'success' => true,
@@ -156,6 +166,10 @@ class ItemController extends Controller {
             'qty' => 'required|numeric|min:0',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'category_id' => 'required|exists:categories,id',
+            'trackable' => 'required|in:Yes,No',
+            'location' => 'required_if:trackable,No|nullable|string',
+            'cabinet_id' => 'required_if:trackable,Yes|nullable|exists:cabinets,id',
+            'drawer_id' => 'required_if:trackable,Yes|nullable|exists:drawers,id',
         ]);
 
         $item = Item::findOrFail($id);
