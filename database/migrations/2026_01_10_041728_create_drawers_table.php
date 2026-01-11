@@ -13,7 +13,7 @@ class CreateDrawersTable extends Migration {
         Schema::create('drawers', function (Blueprint $table) {
             $table->id();
             $table->integer('cabinet_id')->unsigned();
-            $table->string('title')->nullable();
+            $table->string('title');
             $table->timestamps();
         });
     }

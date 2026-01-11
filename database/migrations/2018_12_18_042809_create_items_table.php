@@ -14,17 +14,21 @@ class CreateItemsTable extends Migration {
     public function up() {
         Schema::create('items', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('serial_number')->unique()->nullable();
             $table->integer('category_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->string('name');
-            $table->string('description')->default(null);
-            $table->string('condition')->default(null);
-            $table->string('location')->default(null);
-            $table->integer('price')->default(null);
-            $table->string('image')->default(null);
-            $table->integer('qty');
+            $table->string('description')->nullable();
+            $table->string('instructions')->nullable();
+            $table->string('condition')->nullable();
+            $table->string('location')->nullable();
+            $table->integer('price')->nullable();
+            $table->string('image')->nullable();
+            $table->integer('qty')->nullable();
+            $table->enum('trackable', ['Yes', 'No'])->default('No');
+            $table->integer('cabinet_id')->nullable();
+            $table->integer('drawer_id')->nullable();
             $table->timestamps();
-
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
         });
     }

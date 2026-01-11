@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model {
 
-    protected $fillable = ['category_id', 'name', 'user_id', 'description', 'condition', 'location', 'price', 'image', 'qty', 'cabinet_id', 'drawer_id', 'trackable'];
+    protected $fillable = ['category_id', 'name', 'user_id', 'description', 'condition', 'location', 'price', 'image', 'qty', 'cabinet_id', 'drawer_id', 'trackable', 'instructions'];
     protected $hidden = ['created_at', 'updated_at'];
 
     protected static function booted() {

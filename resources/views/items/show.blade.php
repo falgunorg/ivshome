@@ -83,7 +83,12 @@
                         <tr><th>Name</th><td>{{ $item->name }}</td></tr>
                         <tr><th>Category</th><td>{{ $item->category->name ?? 'N/A' }}</td></tr>
                         <tr><th>Quantity</th><td>{{ $item->qty }}</td></tr>
-                        <tr><th>Location</th><td>{{ $item->location }}</td></tr>
+                        <tr><th>Location</th><td>
+                                {{ $item->trackable == 'Yes' 
+        ? ($item->cabinet->title ?? 'N/A') . ' [' . ($item->drawer->title ?? 'N/A') . ']' 
+        : $item->location 
+                                }}
+                            </td></tr>
                         {{-- ADD ALL YOUR OTHER EXTRA INFO HERE --}}
                         <tr><th>Description</th><td>{{ $item->description ?? 'No description' }}</td></tr>
                         <tr><th>Created At</th><td>{{ $item->created_at }}</td></tr>
@@ -112,8 +117,13 @@
                             <td>{{ $item->qty }}</td>
                         </tr>
                         <tr>
-                            <th>Loc:</th>
-                            <td>{{ $item->location }}</td>
+                            <th>Location:</th>
+                            <td>
+                                {{ $item->trackable == 'Yes' 
+        ? ($item->cabinet->title ?? 'N/A') . ' [' . ($item->drawer->title ?? 'N/A') . ']' 
+        : $item->location 
+                                }}
+                            </td>
                         </tr>
                     </table>
                 </div>

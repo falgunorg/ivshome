@@ -135,7 +135,7 @@ class ItemController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show($id) {
-        $item = Item::with('category', 'user')->findOrFail($id);
+        $item = Item::with(['category', 'user', 'cabinet', 'drawer'])->findOrFail($id);
         return view('items.show', compact('item'));
     }
 
@@ -226,7 +226,7 @@ class ItemController extends Controller {
     public function apiItems() {
         // Use Eager Loading (with) to speed up the database
         // Use query() instead of all() for better DataTables performance
-        $items = Item::with(['category', 'user'])->select('items.*');
+        $items = Item::with(['category', 'user', 'cabinet', 'drawer'])->select('items.*');
 
         return Datatables::of($items)
                         ->addColumn('category_name', function ($item) {
@@ -235,6 +235,17 @@ class ItemController extends Controller {
                         })
                         ->addColumn('by', function ($item) {
                             return optional($item->user)->name ?? 'System';
+                        })
+                        ->addColumn('location', function ($item) {
+                            // 1. Check if trackable is Yes
+                            if ($item->trackable == 'Yes') {
+                                $cabinet = $item->cabinet->title ?? 'N/A';
+                                $drawer = $item->drawer->title ?? 'N/A';
+                                return $cabinet . ' [' . $drawer . ']';
+                            }
+
+                            // 2. Return default location if No
+                            return $item->location;
                         })
                         ->addColumn('serial_number', function ($item) {
                             return '<a href="' . route('items.show', $item->id) . '" class="btn btn-link btn-xs">'

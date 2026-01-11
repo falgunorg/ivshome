@@ -27,6 +27,7 @@
                     <th>Name</th>
                     <th>Price</th>
                     <th>Description</th>
+                    <th>Instructions</th>
                     <th>Condition</th>
                     <th>Location</th>
                     <th>Qty.</th>
@@ -79,6 +80,7 @@
                         {data: 'name', name: 'name'},
                         {data: 'price', name: 'price'},
                         {data: 'description', name: 'description'},
+                        {data: 'instructions', name: 'instructions'},
                         {data: 'condition', name: 'condition'},
                         {data: 'location', name: 'location'},
                         {data: 'qty', name: 'qty'},
@@ -154,6 +156,7 @@
                             $('#name').val(data.name);
                             $('#price').val(data.price);
                             $('#description').val(data.description);
+                            $('#instructions').val(data.instructions);
                             $('#condition').val(data.condition);
                             $('#qty').val(data.qty);
                             $('#category_id').val(data.category_id);

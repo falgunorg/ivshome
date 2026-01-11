@@ -26,7 +26,7 @@
             </div>
         </form> -->
         <!-- /.search form -->
-
+ <hr/>
         <!-- Sidebar Menu -->
         <ul class="sidebar-menu" data-widget="tree">
 
@@ -36,7 +36,7 @@
                     <i class="fa fa-dashboard"></i> <span>Dashboard</span>
                 </a>
             </li>
-            <hr/>
+           
             <li class="{{ Request::routeIs('categories.*') ? 'active' : '' }}">
                 <a href="{{ route('categories.index') }}">
                     <i class="fa fa-list"></i> <span>Category</span>
