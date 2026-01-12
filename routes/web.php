@@ -70,8 +70,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('cabinets', 'CabinetController');
     Route::get('apiCabinets', 'CabinetController@apiCabinets')->name('api.cabinets');
     Route::get('api/cabinet-details/{id}', 'CabinetController@getCabinetDetails');
-
 // Drawer Routes (Add these)
     Route::post('drawers', 'CabinetController@storeDrawer')->name('drawers.store');
     Route::delete('drawers/{id}', 'CabinetController@deleteDrawer')->name('drawers.destroy');
+
+    Route::get('api/groceries', 'GroceryController@apiGroceries')->name('api.groceries');
+    Route::get('groceries/ai', 'GroceryController@suggestMenu')->name('groceries.ai');
+    Route::resource('groceries', 'GroceryController');
 });

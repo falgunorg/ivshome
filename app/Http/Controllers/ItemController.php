@@ -88,6 +88,7 @@ class ItemController extends Controller {
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'description' => 'nullable|string',
             'condition' => 'nullable|string',
+            'instructions' => 'nullable|string',
             'trackable' => 'required|in:Yes,No',
             'location' => 'required_if:trackable,No|nullable|string',
             'cabinet_id' => 'required_if:trackable,Yes|nullable|exists:cabinets,id',

@@ -26,7 +26,7 @@
             </div>
         </form> -->
         <!-- /.search form -->
- <hr/>
+        <hr/>
         <!-- Sidebar Menu -->
         <ul class="sidebar-menu" data-widget="tree">
 
@@ -36,7 +36,7 @@
                     <i class="fa fa-dashboard"></i> <span>Dashboard</span>
                 </a>
             </li>
-           
+
             <li class="{{ Request::routeIs('categories.*') ? 'active' : '' }}">
                 <a href="{{ route('categories.index') }}">
                     <i class="fa fa-list"></i> <span>Category</span>
@@ -79,6 +79,12 @@
             <li class="{{ Request::routeIs('cabinets.*') ? 'active' : '' }}">
                 <a href="{{ route('cabinets.index') }}">
                     <i class="fa fa-cart-plus"></i> <span>5S</span>
+                </a>
+            </li>
+            <hr/>
+            <li class="{{ Request::routeIs('groceries.*') ? 'active' : '' }}">
+                <a href="{{ route('groceries.index') }}">
+                    <i class="fa fa-shopping-bag"></i> <span>Groceries</span>
                 </a>
             </li>
             <hr/>

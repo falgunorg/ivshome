@@ -47,7 +47,9 @@
 </div>
 
 @include('cabinets.form')
-@include('cabinets.drawer_form') {{-- Create this for Drawer CRUD --}}
+@include('cabinets.drawer_form') 
+
+@include('cabinets.item_form')
 @endsection
 
 @section('bot')
@@ -87,8 +89,8 @@
                                 '<td><i class="fa fa-folder-o text-yellow"></i> ' + drawer.title + '</td>' +
                                 '<td>' + (itemsList || '<small class="text-muted">Empty</small>') + '</td>' +
                                 '<td>' +
-                                '<a onclick="editDrawer(' + drawer.id + ', \'' + drawer.title + '\', ' + d.id + ')" class="btn btn-xs btn-primary"><i class="fa fa-edit"></i></a> ' +
-                                '<a onclick="deleteDrawer(' + drawer.id + ')" class="btn btn-xs btn-danger"><i class="fa fa-trash"></i></a>' +
+                                '<a onclick="editDrawer(' + drawer.id + ', \'' + drawer.title + '\', ' + d.id + ')" class="btn btn-xs btn-primary"><i class="fa fa-edit"></i> Edit</a> ' +
+                                '<a onclick="deleteDrawer(' + drawer.id + ')" class="btn btn-xs btn-danger"><i class="fa fa-trash"></i> Delete</a>' +
                                 '</td>' +
                                 '</tr>';
                     });

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Cabinet;
+use App\Category;
 use App\Drawer;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Datatables;
@@ -22,7 +23,11 @@ class CabinetController extends Controller {
      */
     public function index() {
         $cabinets = Cabinet::with('items')->get();
-        return view('cabinets.index');
+        $category = Category::get();
+        return view('cabinets.index', [
+            'cabinets' => $cabinets,
+            'category' => $category,
+        ]);
     }
 
     /**
@@ -203,8 +208,8 @@ class CabinetController extends Controller {
 
         return Datatables::of($cabinets)
                         ->addColumn('action', function ($cabinet) {
-                            return '<a onclick="editForm(' . $cabinet->id . ')" class="btn btn-primary btn-xs"><i class="fa fa-edit"></i></a> ' .
-                                    '<a onclick="deleteData(' . $cabinet->id . ')" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i></a>';
+                            return '<a onclick="editForm(' . $cabinet->id . ')" class="btn btn-primary btn-xs"><i class="fa fa-edit"></i> Edit</a> ' .
+                                    '<a onclick="deleteData(' . $cabinet->id . ')" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> Delete</a>';
                         })
                         ->make(true);
     }

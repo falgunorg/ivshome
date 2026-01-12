@@ -18,7 +18,7 @@
             <div class="icon">
                 <i class="fa fa-user-secret"></i>
             </div>
-            <a href="/user" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            <a href="{{ route('user.index') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
         </div>
     </div>
     <!-- ./col -->
@@ -71,7 +71,6 @@
 
 
 <div class="row">
-    
     <!-- ./col -->
     <div class="col-lg-3 col-xs-6">
         <!-- small box -->
@@ -117,8 +116,8 @@
             <a href="{{ route('itemsOut.index') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
         </div>
     </div>
-    
-     <div class="col-lg-3 col-xs-6">
+
+    <div class="col-lg-3 col-xs-6">
         <!-- small box -->
         <div class="small-box bg-red">
             <div class="inner">
@@ -129,6 +128,19 @@
                 <i class="fa fa-trash"></i>
             </div>
             <a href="{{ route('damages.index') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-xs-6">
+        <!-- small box -->
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>{{ \App\Cabinet::count()  }}</h3>
+                <p>Cabinets</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-file"></i>
+            </div>
+            <a href="{{ route('cabinets.index') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
         </div>
     </div>
     <!-- ./col -->
