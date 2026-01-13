@@ -87,6 +87,11 @@
                     <i class="fa fa-shopping-bag"></i> <span>Groceries</span>
                 </a>
             </li>
+            <li class="{{ Request::routeIs('recipes.*') ? 'active' : '' }}">
+                <a href="{{ route('recipes.index') }}">
+                 <i class="fa fa-list"></i> <span>Recipes</span>
+                </a>
+            </li>
             <hr/>
             <li class="{{ Request::routeIs('user.*') ? 'active' : '' }}">
                 <a href="{{ route('user.index') }}">

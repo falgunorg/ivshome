@@ -23,6 +23,7 @@
         "openai-php/laravel": "^0.11.0",
         "realrashid/sweet-alert": "^7.0",
         "simplesoftwareio/simple-qrcode": "^4.2",
+        "tonysm/rich-text-laravel": "^3.4",
         "yajra/laravel-datatables-oracle": "^10.0"
     },
     "require-dev": {

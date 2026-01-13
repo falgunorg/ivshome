@@ -77,4 +77,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('api/groceries', 'GroceryController@apiGroceries')->name('api.groceries');
     Route::get('groceries/ai', 'GroceryController@suggestMenu')->name('groceries.ai');
     Route::resource('groceries', 'GroceryController');
+
+    Route::get('/apiRecipes', 'RecipeController@apiRecipes')->name('api.recipes');
+    Route::resource('recipes', 'RecipeController');
 });
