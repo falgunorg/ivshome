@@ -88,4 +88,35 @@ class GroceryController extends Controller {
 
         return view('groceries.ai_results', compact('recipes'));
     }
+
+    public function edit($id) {
+        $grocery = Grocery::find($id);
+        return $grocery;
+    }
+
+    public function update(Request $request, $id) {
+        $grocery = Grocery::findOrFail($id);
+        $data = $request->all();
+
+        if ($request->hasFile('image')) {
+            // Delete old image if it exists
+            if ($grocery->image && file_exists(public_path($grocery->image))) {
+                unlink(public_path($grocery->image));
+            }
+            $data['image'] = '/upload/groceries/' . time() . '.' . $request->image->extension();
+            $request->image->move(public_path('upload/groceries'), $data['image']);
+        }
+
+        $grocery->update($data);
+        return response()->json(['success' => true, 'message' => 'Grocery Updated']);
+    }
+
+    public function destroy($id) {
+        $grocery = Grocery::findOrFail($id);
+        if ($grocery->image && file_exists(public_path($grocery->image))) {
+            unlink(public_path($grocery->image));
+        }
+        $grocery->delete();
+        return response()->json(['success' => true, 'message' => 'Grocery Deleted']);
+    }
 }

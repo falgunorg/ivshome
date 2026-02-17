@@ -26,14 +26,14 @@
         <!-- small box -->
         <div class="small-box bg-green">
             <div class="inner">
-                <h3>{{ \App\Category::count() }}<sup style="font-size: 20px"></sup></h3>
+                <h3>{{ \App\ItemType::count() }}<sup style="font-size: 20px"></sup></h3>
 
                 <p>Category</p>
             </div>
             <div class="icon">
                 <i class="fa fa-list"></i>
             </div>
-            <a href="{{ route('categories.index') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            <a href="{{ route('item-types.index') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
         </div>
     </div>
     <!-- ./col -->

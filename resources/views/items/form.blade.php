@@ -24,20 +24,20 @@
                                 </div>
                             </div>
 
-                            <div class="col-lg-12">
+                            <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label>Category</label>
-                                    {!! Form::select('category_id', $category, null, ['class' => 'form-control select', 'placeholder' => '-- Choose Category --', 'id' => 'category_id', 'required']) !!}
+                                    <label>Item Type</label>
+                                    <select class="form-control" id="item_type" name="item_type" required>
+                                        <option value="" selected disabled>-- Select Item Category --</option>
+
+                                        @foreach($item_types as $id => $name)
+                                        <option value="{{ $id }}">{{ $name }}</option>
+                                        @endforeach
+                                    </select>
                                     <span class="help-block with-errors"></span>
                                 </div>
                             </div>
-                            <div class="col-lg-6 ">
-                                <div class="form-group">
-                                    <label>Price</label>
-                                    <input type="text" class="form-control" id="price" name="price" required>
-                                    <span class="help-block with-errors"></span>
-                                </div>
-                            </div>
+
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label>Quantity</label>
@@ -55,57 +55,36 @@
 
                             <div class="col-lg-12">
                                 <div class="form-group">
-                                    <label>Instructions</label>
-                                    <textarea class="form-control" id="instructions" name="instructions" rows="3"></textarea>
-                                    <span class="help-block with-errors"></span>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-6">
-                                <div class="form-group">
-                                    <label>Condition</label>
-                                    <select class="form-control" id="condition" name="condition">
-                                        <option value="" selected disabled>-- Select Condition --</option>
-                                        <option value="New">New</option>
-                                        <option value="Old">Old</option>
-                                        <option value="Fresh">Fresh</option>
-                                        <option value="Fair">Fair</option>
-                                        <option value="Like New">Like New</option>
+                                    <label>Location</label>
+                                    <select class="form-control" id="location_id" name="location_id">
+                                        <option value="" selected disabled>-- Select Location --</option>
+                                        @foreach($locations as $id => $name)
+                                        <option value="{{ $id }}">{{ $name }}</option>
+                                        @endforeach
                                     </select>
-                                    <span class="help-block with-errors"></span>
                                 </div>
                             </div>
 
-                            <div class="col-lg-6">
+                            <div class="col-lg-12">
                                 <div class="form-group">
                                     <label>Trackable (Storage System?)</label>
                                     <select class="form-control" id="trackable" name="trackable">
-                                        <option value="No">No (Manual Location)</option>
+                                        <option value="No">No</option>
                                         <option value="Yes">Yes (Cabinet & Drawer)</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-lg-12">
-                                <div id="location_group" class="form-group">
-                                    <label>General Location</label>
-                                    <input type="text" class="form-control" id="location" name="location" placeholder="e.g. Front Desk">
-                                </div>
 
-                            </div>
 
                             <div class="col-lg-12">
                                 <div id="storage_group" style="display:none;">
-
-
                                     <div class="row">
+
                                         <div class="col-lg-6">
                                             <div class="form-group">
                                                 <label>Cabinet</label>
                                                 <select class="form-control" id="cabinet_id" name="cabinet_id">
-                                                    <option value="" selected disabled>-- Select Cabinet --</option>
-                                                    @foreach($cabinets as $id => $title)
-                                                    <option value="{{ $id }}">{{ $title }}</option>
-                                                    @endforeach
+                                                    <option value="" selected disabled>-- Select Location First --</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -128,31 +107,13 @@
                                 </div>
                             </div>
                         </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                     </div>
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">Submit</button>
+                    <button type="submit" onclick="setPrint(true)" class="btn btn-warning">Submit & Print Label</button>
+                    <button type="submit" onclick="setPrint(false)" class="btn btn-success">Submit</button>
                 </div>
 
             </form>

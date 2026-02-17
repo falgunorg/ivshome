@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Grocery extends Model {
 
-    protected $fillable = ['user_id', 'item_name', 'quantity', 'unit'];
+    protected $fillable = ['name', 'qty', 'unit', 'category', 'image', 'min_stock'];
 
     public function user() {
         return $this->belongsTo(User::class);

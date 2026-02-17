@@ -37,9 +37,14 @@
                 </a>
             </li>
 
-            <li class="{{ Request::routeIs('categories.*') ? 'active' : '' }}">
-                <a href="{{ route('categories.index') }}">
-                    <i class="fa fa-list"></i> <span>Category</span>
+            <li class="{{ Request::routeIs('item-types.*') ? 'active' : '' }}">
+                <a href="{{ route('item-types.index') }}">
+                    <i class="fa fa-list"></i> <span>Item Type</span>
+                </a>
+            </li>
+            <li class="{{ Request::routeIs('locations.*') ? 'active' : '' }}">
+                <a href="{{ route('locations.index') }}">
+                    <i class="fa fa-map"></i> <span>Locations</span>
                 </a>
             </li>
             <li class="{{ Request::routeIs('items.*') ? 'active' : '' }}">
@@ -74,11 +79,11 @@
                 </a>
             </li>
 
-            <hr/>
+           
 
             <li class="{{ Request::routeIs('cabinets.*') ? 'active' : '' }}">
                 <a href="{{ route('cabinets.index') }}">
-                    <i class="fa fa-cart-plus"></i> <span>5S</span>
+                    <i class="fa fa-file"></i> <span>Cabinet & Drawers</span>
                 </a>
             </li>
             <hr/>
@@ -89,7 +94,7 @@
             </li>
             <li class="{{ Request::routeIs('recipes.*') ? 'active' : '' }}">
                 <a href="{{ route('recipes.index') }}">
-                 <i class="fa fa-list"></i> <span>Recipes</span>
+                    <i class="fa fa-list"></i> <span>Recipes</span>
                 </a>
             </li>
             <hr/>

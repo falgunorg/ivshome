@@ -24,10 +24,29 @@ Route::get('dashboard', function () {
 });
 
 Route::group(['middleware' => 'auth'], function () {
-    Route::resource('categories', 'CategoryController');
-    Route::get('/apiCategories', 'CategoryController@apiCategories')->name('api.categories');
-    Route::get('/exportCategoriesAll', 'CategoryController@exportCategoriesAll')->name('exportPDF.categoriesAll');
-    Route::get('/exportCategoriesAllExcel', 'CategoryController@exportExcel')->name('exportExcel.categoriesAll');
+    Route::resource('item-types', 'ItemTypeController');
+    Route::get('/api/item-types', 'ItemTypeController@apiItemTypes')->name('api.item_types');
+
+    Route::resource('items', 'ItemController');
+    Route::get('/apiItems', 'ItemController@apiItems')->name('api.items');
+    Route::get('/tokens', 'ItemController@tokens')->name('tokens');
+
+    Route::resource('user', 'UserController');
+    Route::get('/apiUsers', 'UserController@apiUsers')->name('api.users');
+
+    // Cabinet Routes (You likely already have this)
+    Route::resource('cabinets', 'CabinetController');
+    Route::get('apiCabinets', 'CabinetController@apiCabinets')->name('api.cabinets');
+    Route::get('api/cabinet-details/{id}', 'CabinetController@getCabinetDetails');
+// Drawer Routes (Add these)
+    Route::post('drawers', 'CabinetController@storeDrawer')->name('drawers.store');
+    Route::delete('drawers/{id}', 'CabinetController@deleteDrawer')->name('drawers.destroy');
+
+    Route::resource('locations', 'LocationController');
+    Route::get('/apiLocations', 'LocationController@apiLocations')->name('api.locations');
+
+    Route::get('api/cabinets-by-location/{id}', 'ItemController@getCabinets');
+    Route::get('api/drawers-by-cabinet/{id}', 'ItemController@getDrawers');
 
     Route::resource('customers', 'CustomerController');
     Route::get('/apiCustomers', 'CustomerController@apiCustomers')->name('api.customers');
@@ -40,10 +59,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/importSuppliers', 'SupplierController@ImportExcel')->name('import.suppliers');
     Route::get('/exportSupplierssAll', 'SupplierController@exportSuppliersAll')->name('exportPDF.suppliersAll');
     Route::get('/exportSuppliersAllExcel', 'SupplierController@exportExcel')->name('exportExcel.suppliersAll');
-
-    Route::resource('items', 'ItemController');
-    Route::get('/apiItems', 'ItemController@apiItems')->name('api.items');
-    Route::get('/tokens', 'ItemController@tokens')->name('tokens');
 
     Route::resource('itemsOut', 'ItemSaleController');
     Route::get('/apiItemsOut', 'ItemSaleController@apiItemsOut')->name('api.itemsOut');
@@ -62,17 +77,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/exportDamageAll', 'DamageController@exportDamageAll')->name('exportPDF.damageAll');
     Route::get('/exportDamageAllExcel', 'DamageController@exportExcel')->name('exportExcel.damageAll');
     Route::get('/exportDamage/{id}', 'DamageController@exportDamage')->name('exportPDF.damage');
-
-    Route::resource('user', 'UserController');
-    Route::get('/apiUsers', 'UserController@apiUsers')->name('api.users');
-
-    // Cabinet Routes (You likely already have this)
-    Route::resource('cabinets', 'CabinetController');
-    Route::get('apiCabinets', 'CabinetController@apiCabinets')->name('api.cabinets');
-    Route::get('api/cabinet-details/{id}', 'CabinetController@getCabinetDetails');
-// Drawer Routes (Add these)
-    Route::post('drawers', 'CabinetController@storeDrawer')->name('drawers.store');
-    Route::delete('drawers/{id}', 'CabinetController@deleteDrawer')->name('drawers.destroy');
 
     Route::get('api/groceries', 'GroceryController@apiGroceries')->name('api.groceries');
     Route::get('groceries/ai', 'GroceryController@suggestMenu')->name('groceries.ai');

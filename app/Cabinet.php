@@ -6,16 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cabinet extends Model {
 
-    protected $fillable = ['title', 'location', 'user_id'];
+    protected $fillable = ['title', 'location_id', 'user_id'];
 
     public function user() {
         return $this->belongsTo(User::class);
     }
 
+    // App\Cabinet.php
+    public function location() {
+        return $this->belongsTo(Location::class);
+    }
+
+    public function drawers() {
+        return $this->hasMany(Drawer::class);
+    }
+
     public function items() {
         return $this->hasMany(Item::class);
-    }
-     public function drawers() {
-        return $this->hasMany(Drawer::class);
     }
 }

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model {
 
-    protected $fillable = ['category_id', 'name', 'user_id', 'description', 'condition', 'location', 'price', 'image', 'qty', 'cabinet_id', 'drawer_id', 'trackable', 'instructions'];
+    protected $fillable = ['name', 'user_id', 'item_type', 'description', 'image', 'qty', 'location_id', 'cabinet_id', 'drawer_id', 'trackable'];
     protected $hidden = ['created_at', 'updated_at'];
 
     protected static function booted() {
@@ -27,12 +27,12 @@ class Item extends Model {
         return asset('upload/items/' . $this->image);
     }
 
-    public function category() {
-        return $this->belongsTo(Category::class);
-    }
-
     public function user() {
         return $this->belongsTo(User::class);
+    }
+
+    public function itemLocation() {
+        return $this->belongsTo(Location::class, 'location_id');
     }
 
     public function cabinet() {
@@ -41,5 +41,9 @@ class Item extends Model {
 
     public function drawer() {
         return $this->belongsTo(Drawer::class);
+    }
+
+    public function itemType() {
+        return $this->belongsTo(ItemType::class, 'item_type');
     }
 }

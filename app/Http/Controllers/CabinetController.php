@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Cabinet;
-use App\Category;
+use App\Location;
 use App\Drawer;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Datatables;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\ItemType;
 
 class CabinetController extends Controller {
 
@@ -23,10 +25,13 @@ class CabinetController extends Controller {
      */
     public function index() {
         $cabinets = Cabinet::with('items')->get();
-        $category = Category::get();
+
+        // Use pluck to get ['id' => 'name'] format for the dropdown
+        $locations = Location::pluck('name', 'id');
+
         return view('cabinets.index', [
             'cabinets' => $cabinets,
-            'category' => $category,
+            'locations' => $locations,
         ]);
     }
 
@@ -53,19 +58,20 @@ class CabinetController extends Controller {
                 'min:2',
                 // Check uniqueness of title WHERE location is the same as input
                 Rule::unique('cabinets')->where(function ($query) use ($request) {
-                    return $query->where('location', $request->location);
+                    return $query->where('location_id', $request->location_id);
                 }),
             ],
-            'location' => 'required|string|min:2'
+            'location_id' => 'required'
         ]);
 
         $request['user_id'] = Auth::id();
 
-        Cabinet::create($request->all());
+        $cabinet = Cabinet::create($request->all());
 
         return response()->json([
                     'success' => true,
-                    'message' => 'Cabinet Created'
+                    'message' => 'Cabinet Created',
+                    'id' => $cabinet->id
         ]);
     }
 
@@ -76,8 +82,18 @@ class CabinetController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show($id) {
-        $cabinet = Cabinet::with('items', 'drawers')->findOrFail($id);
-        return view('cabinets.show')->compact('cabinet');
+        // Eager load drawers and the items within those drawers
+        $cabinet = Cabinet::with(['location', 'drawers.items'])->findOrFail($id);
+
+        // 2. Generate the QR Code for the current URL
+        // size(150) sets the dimensions, margin(1) removes excess white space
+        $qrcode = QrCode::size(150)
+                ->margin(1)
+                ->generate(url()->current());
+        $item_types = ItemType::orderBy('name', 'ASC')->pluck('name', 'id');
+
+        // 3. Pass the $qrcode variable to the view
+        return view('cabinets.show', compact('cabinet', 'qrcode', 'item_types'));
     }
 
     /**
@@ -106,11 +122,11 @@ class CabinetController extends Controller {
                 'min:2',
                         Rule::unique('cabinets')
                         ->where(function ($query) use ($request) {
-                            return $query->where('location', $request->location);
+                            return $query->where('location_id', $request->location_id);
                         })
                         ->ignore($id), // Ignore the current record
             ],
-            'location' => 'required|string|min:2'
+            'location_id' => 'required'
         ]);
 
         $cabinet = Cabinet::findOrFail($id);
@@ -118,7 +134,8 @@ class CabinetController extends Controller {
 
         return response()->json([
                     'success' => true,
-                    'message' => 'Cabinet Updated'
+                    'message' => 'Cabinet Updated',
+                    'id' => $cabinet->id
         ]);
     }
 
@@ -203,14 +220,25 @@ class CabinetController extends Controller {
     }
 
     public function apiCabinets() {
-        // Only fetch counts for the main list to keep it fast
-        $cabinets = Cabinet::withCount(['items', 'drawers']);
+        $cabinets = Cabinet::with('location')->withCount('drawers');
 
         return Datatables::of($cabinets)
-                        ->addColumn('action', function ($cabinet) {
-                            return '<a onclick="editForm(' . $cabinet->id . ')" class="btn btn-primary btn-xs"><i class="fa fa-edit"></i> Edit</a> ' .
-                                    '<a onclick="deleteData(' . $cabinet->id . ')" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> Delete</a>';
+                        ->addColumn('location', function ($cabinet) {
+                            if ($cabinet->location) {
+                                return '<span class="label label-info"><i class="fa fa-map-marker"></i> ' . $cabinet->location->name . '</span>';
+                            }
+                            return '<span class="label label-danger">No Location</span>';
                         })
+                        ->addColumn('action', function ($cabinet) {
+                            return '<div class="">' .
+                                    '<a href="' . route('cabinets.show', $cabinet->id) . '" class="btn btn-info btn-xs"><i class="glyphicon glyphicon-eye-open"></i></a> ' .
+                                    // NEW: Print Button
+                                    '<a onclick="printLabel(' . $cabinet->id . ')" class="btn btn-warning btn-xs"><i class="glyphicon glyphicon-print"></i></a> ' .
+                                    '<a onclick="editForm(' . $cabinet->id . ')" class="btn btn-primary btn-xs"><i class="fa fa-edit"></i> </a> ' .
+                                    '<a onclick="deleteData(' . $cabinet->id . ')" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> </a>' .
+                                    '</div>';
+                        })
+                        ->rawColumns(['location', 'action'])
                         ->make(true);
     }
 

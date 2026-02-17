@@ -9,10 +9,17 @@
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="id" name="id">
+                    
                     <div class="form-group">
                         <label>Grocery Name</label>
                         <input type="text" name="name" id="name" class="form-control" required>
                     </div>
+
+                    <div class="form-group">
+                        <label>Category</label>
+                        <input type="text" name="category" id="category" class="form-control">
+                    </div>
+
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -27,12 +34,14 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="form-group">
                         <label>Photo</label>
-                        <input type="file" name="image" class="form-control">
+                        <input type="file" name="image" id="image" class="form-control">
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-success">Save Item</button>
                 </div>
             </form>

@@ -22,17 +22,23 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="location" class="col-md-3 control-label">Location</label>
+                        <label for="location_id" class="col-md-3 control-label">Location</label>
                         <div class="col-md-9">
-                            <input type="text" class="form-control" id="location" name="location" placeholder="e.g. Room 101, Floor 2" required>
+                            {!! Form::select('location_id', $locations, null, [
+                            'class' => 'form-control', 
+                            'placeholder' => '-- Choose Location --', 
+                            'id' => 'location_id', 
+                            'required'
+                            ]) !!}
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">Save Cabinet</button>
+                    <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Cancel</button>
+                    <button type="submit" onclick="setPrint(true)" class="btn btn-warning">Submit & Print Label</button>
+                    <button type="submit" onclick="setPrint(false)" class="btn btn-success">Submit</button>
                 </div>
             </form>
         </div>
