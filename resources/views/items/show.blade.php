@@ -107,8 +107,28 @@
                             <th>Location</th>
                             <td>
                                 <i class="fa fa-map-marker text-muted"></i>
-                                @if($item->itemLocation)
-                                {{ $item->itemLocation->name }}
+
+                                {{-- Base Location --}}
+                                @if ($item->itemLocation)
+                                <a href="{{ route('locations.show', $item->itemLocation->id) }}">
+                                    {{ $item->itemLocation->name }}
+                                </a>
+                                @else
+                                <span class="text-muted">No Location</span>
+                                @endif
+
+                                {{-- Cabinet --}}
+                                @if ($item->cabinet)
+                                <i class="fa fa-angle-right" style="margin:0 2px;"></i>
+                                <a href="{{ route('cabinets.show', $item->cabinet->id) }}">
+                                    {{ $item->cabinet->title }}
+                                </a>
+                                @endif
+
+                                {{-- Drawer --}}
+                                @if ($item->drawer)
+                                <i class="fa fa-angle-right" style="margin:0 2px;"></i>
+                                <span class="text-muted">{{ $item->drawer->title }}</span>
                                 @endif
                             </td>
                         </tr>
@@ -147,7 +167,7 @@
 
 <script>
     // If the URL contains ?print=true, trigger print and then close/back
-    window.onload = function() {
+    window.onload = function () {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('print')) {
             window.print();

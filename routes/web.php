@@ -84,4 +84,13 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/apiRecipes', 'RecipeController@apiRecipes')->name('api.recipes');
     Route::resource('recipes', 'RecipeController');
+
+    Route::get('/requests', 'RequestController@index')->name('requests');
+
+    Route::post('/requests/sale/{id}/approve', 'RequestController@approveSale')->name('requests.sale.approve');
+    Route::post('/requests/purchase/{id}/approve', 'RequestController@approvePurchase')->name('requests.purchase.approve');
+    Route::post('/requests/damage/{id}/approve', 'RequestController@approveDamage')->name('requests.damage.approve');
+
+// Notice the names here match the Blade parameters
+    Route::delete('/requests/{id}/{type}/decline', 'RequestController@declineRequest')->name('requests.decline');
 });

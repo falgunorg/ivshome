@@ -79,7 +79,7 @@
                 </a>
             </li>
 
-           
+
 
             <li class="{{ Request::routeIs('cabinets.*') ? 'active' : '' }}">
                 <a href="{{ route('cabinets.index') }}">
@@ -98,6 +98,15 @@
                 </a>
             </li>
             <hr/>
+
+            @if(Auth::user()->role == 'admin')
+            <li class="{{ Request::routeIs('requests.*') ? 'active' : '' }}">
+                <a href="{{ route('requests') }}">
+                    <i class="fa fa-user-secret"></i> <span>Requests</span>
+                </a>
+            </li>
+            @endif
+
             <li class="{{ Request::routeIs('user.*') ? 'active' : '' }}">
                 <a href="{{ route('user.index') }}">
                     <i class="fa fa-user-secret"></i> <span>System Users</span>

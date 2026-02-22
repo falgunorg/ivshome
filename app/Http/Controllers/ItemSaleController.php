@@ -25,7 +25,7 @@ class ItemSaleController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-         $items = Item::orderBy('name', 'ASC')->get(['id', 'name', 'serial_number']);
+        $items = Item::orderBy('name', 'ASC')->get(['id', 'name', 'serial_number']);
 
         $customers = Customer::orderBy('name', 'ASC')
                 ->get()
@@ -74,14 +74,31 @@ class ItemSaleController extends Controller {
                     // 2. Create the Sale record
                     $data = $request->all();
                     $data['user_id'] = Auth::id();
-                    ItemSale::create($data);
+                    $sale = ItemSale::create($data);
 
-                    // 3. Update the Inventory
-                    $item->decrement('qty', $request->qty);
+                    // 4. Admin Auto-Approval Logic
+                    if (auth()->user()->role == 'admin') {
+                        // 3. Update the Inventory
+                        $item->decrement('qty', $request->qty);
+
+                        // Update status to approved
+                        $sale->status = 'approved'; // Fixed syntax (property, not method)
+                        $sale->save();
+
+                        $msg = 'Purchase record created and stock updated.';
+                    } else {
+                        $msg = 'Purchase request submitted for Admin approval.';
+                    }
+
+
+
+
+
+
 
                     return response()->json([
                                 'success' => true,
-                                'message' => 'Items Out Created'
+                                'message' => $msg
                     ]);
                 });
     }

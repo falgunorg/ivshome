@@ -132,7 +132,7 @@
     </div>
     <div class="col-lg-3 col-xs-6">
         <!-- small box -->
-        <div class="small-box bg-warning">
+        <div class="small-box bg-info">
             <div class="inner">
                 <h3>{{ \App\Cabinet::count()  }}</h3>
                 <p>Cabinets</p>

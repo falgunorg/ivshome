@@ -230,13 +230,20 @@ class CabinetController extends Controller {
                             return '<span class="label label-danger">No Location</span>';
                         })
                         ->addColumn('action', function ($cabinet) {
-                            return '<div class="">' .
-                                    '<a href="' . route('cabinets.show', $cabinet->id) . '" class="btn btn-info btn-xs"><i class="glyphicon glyphicon-eye-open"></i></a> ' .
-                                    // NEW: Print Button
-                                    '<a onclick="printLabel(' . $cabinet->id . ')" class="btn btn-warning btn-xs"><i class="glyphicon glyphicon-print"></i></a> ' .
-                                    '<a onclick="editForm(' . $cabinet->id . ')" class="btn btn-primary btn-xs"><i class="fa fa-edit"></i> </a> ' .
-                                    '<a onclick="deleteData(' . $cabinet->id . ')" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> </a>' .
-                                    '</div>';
+                            // 1. Buttons that EVERYONE can see
+                            $actions = '<div class="">' .
+                                    '<a href="' . route('cabinets.show', $cabinet->id) . '" class="btn btn-info btn-xs" title="Show"><i class="glyphicon glyphicon-eye-open"></i></a> ' .
+                                    '<a onclick="printLabel(' . $cabinet->id . ')" class="btn btn-warning btn-xs" title="Print"><i class="glyphicon glyphicon-print"></i></a> ';
+
+                            // 2. Buttons ONLY for Admin (Create, Update, Delete logic)
+                            if (auth()->user()->role == 'admin') {
+                                $actions .= '<a onclick="editForm(' . $cabinet->id . ')" class="btn btn-primary btn-xs" title="Edit"><i class="fa fa-edit"></i></a> ' .
+                                        '<a onclick="deleteData(' . $cabinet->id . ')" class="btn btn-danger btn-xs" title="Delete"><i class="fa fa-trash"></i></a>';
+                            }
+
+                            $actions .= '</div>';
+
+                            return $actions;
                         })
                         ->rawColumns(['location', 'action'])
                         ->make(true);

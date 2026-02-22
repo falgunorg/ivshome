@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Customer;
 use App\Exports\ExportCustomers;
 use App\Imports\CustomersImport;
@@ -11,19 +10,18 @@ use Yajra\DataTables\DataTables;
 use Excel;
 use PDF;
 
-class CustomerController extends Controller
-{
-    public function __construct()
-    {
+class CustomerController extends Controller {
+
+    public function __construct() {
         $this->middleware('role:admin,staff');
     }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
+    public function index() {
         $customers = Customer::all();
         return view('customers.index');
     }
@@ -33,8 +31,7 @@ class CustomerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
+    public function create() {
         //
     }
 
@@ -44,22 +41,20 @@ class CustomerController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $this->validate($request, [
-            'name'      => 'required',
-            'address'    => 'required',
-            'email'     => 'required|unique:customers',
-            'phone'   => 'required',
+            'name' => 'required',
+            'address' => 'required',
+            'email' => 'required|unique:customers',
+            'phone' => 'required',
         ]);
 
         Customer::create($request->all());
 
         return response()->json([
-            'success'    => true,
-            'message'    => 'Customer Created'
+                    'success' => true,
+                    'message' => 'Customer Created'
         ]);
-
     }
 
     /**
@@ -68,8 +63,7 @@ class CustomerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
+    public function show($id) {
         //
     }
 
@@ -79,8 +73,7 @@ class CustomerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
+    public function edit($id) {
         $customer = Customer::find($id);
         return $customer;
     }
@@ -92,13 +85,12 @@ class CustomerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
+    public function update(Request $request, $id) {
         $this->validate($request, [
-            'name'      => 'required|string|min:2',
-            'address'    => 'required|string|min:2',
-            'email'     => 'required|string|email|max:255|unique:customers',
-            'phone'   => 'required|string|min:2',
+            'name' => 'required|string|min:2',
+            'address' => 'required|string|min:2',
+            'email' => 'required|string|email|max:255|unique:customers',
+            'phone' => 'required|string|min:2',
         ]);
 
         $customer = Customer::findOrFail($id);
@@ -106,8 +98,8 @@ class CustomerController extends Controller
         $customer->update($request->all());
 
         return response()->json([
-            'success'    => true,
-            'message'    => 'Customer Updated'
+                    'success' => true,
+                    'message' => 'Customer Updated'
         ]);
     }
 
@@ -117,30 +109,38 @@ class CustomerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
-    {
+    public function destroy($id) {
         Customer::destroy($id);
 
         return response()->json([
-            'success'    => true,
-            'message'    => 'Customer Delete'
+                    'success' => true,
+                    'message' => 'Customer Delete'
         ]);
     }
 
-    public function apiCustomers()
-    {
+    public function apiCustomers() {
         $customer = Customer::all();
 
         return Datatables::of($customer)
-            ->addColumn('action', function($customer){
-                return '<a onclick="editForm('. $customer->id .')" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-edit"></i> Edit</a> ' .
-                    '<a onclick="deleteData('. $customer->id .')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i> Delete</a>';
-            })
-            ->rawColumns(['action'])->make(true);
+                        ->addColumn('action', function ($customer) {
+                            $actions = '';
+
+                            // Rule: Only admin can see Edit and Delete buttons
+                            if (auth()->user()->role == 'admin') {
+                                $actions .= '<a onclick="editForm(' . $customer->id . ')" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-edit"></i> Edit</a> ' .
+                                        '<a onclick="deleteData(' . $customer->id . ')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i> Delete</a>';
+                            } else {
+                                // For non-admins, we show a View button or just a "No Access" badge
+                                $actions .= '<span class="label label-default"><i class="fa fa-lock"></i> Restricted</span>';
+                            }
+
+                            return $actions;
+                        })
+                        ->rawColumns(['action'])
+                        ->make(true);
     }
 
-    public function ImportExcel(Request $request)
-    {
+    public function ImportExcel(Request $request) {
         //Validasi
         $this->validate($request, [
             'file' => 'required|mimes:xls,xlsx'
@@ -156,16 +156,13 @@ class CustomerController extends Controller
         return redirect()->back()->with(['error' => 'Please choose file before!']);
     }
 
-
-    public function exportCustomersAll()
-    {
+    public function exportCustomersAll() {
         $customers = Customer::all();
-        $pdf = PDF::loadView('customers.CustomersAllPDF',compact('customers'));
+        $pdf = PDF::loadView('customers.CustomersAllPDF', compact('customers'));
         return $pdf->download('customers.pdf');
     }
 
-    public function exportExcel()
-    {
+    public function exportExcel() {
         return (new ExportCustomers)->download('customers.xlsx');
     }
 }

@@ -9,7 +9,7 @@ class ItemType extends Model {
 
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'code'];
 
     public function items() {
         return $this->hasMany(Item::class, 'item_type');

@@ -13,11 +13,11 @@
     <div class="box-header">
         <h3 class="box-title">List of Locations</h3>
     </div>
-
+    @if(Auth::user()->role == 'admin')
     <div class="box-header">
         <a onclick="addForm()" class="btn btn-success" ><i class="fa fa-plus"></i> Add a New Location</a>
     </div>
-
+    @endif
 
     <!-- /.box-header -->
     <div class="box-body">
@@ -26,6 +26,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
+                    <th>Code</th>
                     <th>Cabinets</th> 
                     <th>Action</th>
                 </tr>
@@ -78,6 +79,7 @@
                             return data + ' <span class="label label-info">' + (row.items_count || 0) + ' Items</span>';
                         }
                     },
+                    {data: 'code', name: 'code'},
                     {
                         data: 'cabinets',
                         name: 'cabinets',
@@ -110,6 +112,7 @@
 
                         $('#id').val(data.id);
                         $('#name').val(data.name);
+                        $('#code').val(data.code);
                     },
                     error: function () {
                         alert("Nothing Data");

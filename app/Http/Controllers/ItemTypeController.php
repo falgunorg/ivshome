@@ -71,16 +71,22 @@ class ItemTypeController extends Controller {
 
         return Datatables::of($itemTypes)
                         ->addColumn('action', function ($itemType) {
-                            return
-                                    // Show Button
-                                    '<a href="' . route('item-types.show', $itemType->id) . '" class="btn btn-info btn-xs">' .
-                                    '<i class="glyphicon glyphicon-eye-open"></i> Show</a> ' .
-                                    // Edit Button
-                                    '<a onclick="editForm(' . $itemType->id . ')" class="btn btn-primary btn-xs">' .
-                                    '<i class="glyphicon glyphicon-edit"></i> Edit</a> ' .
-                                    // Delete Button
-                                    '<a onclick="deleteData(' . $itemType->id . ')" class="btn btn-danger btn-xs">' .
-                                    '<i class="glyphicon glyphicon-trash"></i> Delete</a>';
+                            // Start with the Show button which everyone can see
+                            $action = '<a href="' . route('item-types.show', $itemType->id) . '" class="btn btn-info btn-xs">' .
+                                    '<i class="glyphicon glyphicon-eye-open"></i> Show</a> ';
+
+                            // Logic check outside of the return string
+                            if (auth()->user()->role == 'admin') {
+                                // Append Edit Button
+                                $action .= '<a onclick="editForm(' . $itemType->id . ')" class="btn btn-primary btn-xs">' .
+                                        '<i class="glyphicon glyphicon-edit"></i> Edit</a> ';
+
+                                // Append Delete Button
+                                $action .= '<a onclick="deleteData(' . $itemType->id . ')" class="btn btn-danger btn-xs">' .
+                                        '<i class="glyphicon glyphicon-trash"></i> Delete</a>';
+                            }
+
+                            return $action;
                         })
                         ->rawColumns(['action'])
                         ->make(true);

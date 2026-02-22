@@ -20,6 +20,14 @@
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="code" class="col-md-3 control-label">Code</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" id="code" name="code" placeholder="AE" required>
+                            <span class="help-block with-errors"></span>
+                        </div>
+                    </div>
+
 
                     <div class="form-group">
                         <label for="location_id" class="col-md-3 control-label">Location</label>

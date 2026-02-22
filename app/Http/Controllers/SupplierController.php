@@ -11,146 +11,157 @@ use PDF;
 use Yajra\DataTables\DataTables;
 
 class SupplierController extends Controller {
-	public function __construct() {
-		$this->middleware('role:admin,staff');
-	}
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return \Illuminate\Http\Response
-	 */
-	public function index() {
-		$suppliers = Supplier::all();
-		return view('suppliers.index');
-	}
 
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return \Illuminate\Http\Response
-	 */
-	public function create() {
-		//
-	}
+    public function __construct() {
+        $this->middleware('role:admin,staff');
+    }
 
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @return \Illuminate\Http\Response
-	 */
-	public function store(Request $request) {
-		$this->validate($request, [
-			'name' => 'required',
-			'address' => 'required',
-			'email' => 'required|unique:suppliers',
-			'phone' => 'required',
-		]);
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index() {
+        $suppliers = Supplier::all();
+        return view('suppliers.index');
+    }
 
-		Supplier::create($request->all());
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create() {
+        //
+    }
 
-		return response()->json([
-			'success' => true,
-			'message' => 'Suppliers Created',
-		]);
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request) {
+        $this->validate($request, [
+            'name' => 'required',
+            'address' => 'required',
+            'email' => 'required|unique:suppliers',
+            'phone' => 'required',
+        ]);
 
-	}
+        Supplier::create($request->all());
 
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public function show($id) {
-		//
-	}
+        return response()->json([
+                    'success' => true,
+                    'message' => 'Suppliers Created',
+        ]);
+    }
 
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public function edit($id) {
-		$supplier = Supplier::find($id);
-		return $supplier;
-	}
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id) {
+        //
+    }
 
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @param  int  $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public function update(Request $request, $id) {
-		$this->validate($request, [
-			'name' => 'required|string|min:2',
-			'address' => 'required|string|min:2',
-			'email' => 'required|string|email|max:255|unique:suppliers',
-			'phone' => 'required|string|min:2',
-		]);
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) {
+        $supplier = Supplier::find($id);
+        return $supplier;
+    }
 
-		$supplier = Supplier::findOrFail($id);
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id) {
+        $this->validate($request, [
+            'name' => 'required|string|min:2',
+            'address' => 'required|string|min:2',
+            'email' => 'required|string|email|max:255|unique:suppliers',
+            'phone' => 'required|string|min:2',
+        ]);
 
-		$supplier->update($request->all());
+        $supplier = Supplier::findOrFail($id);
 
-		return response()->json([
-			'success' => true,
-			'message' => 'Supplier Updated',
-		]);
-	}
+        $supplier->update($request->all());
 
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public function destroy($id) {
-		Supplier::destroy($id);
+        return response()->json([
+                    'success' => true,
+                    'message' => 'Supplier Updated',
+        ]);
+    }
 
-		return response()->json([
-			'success' => true,
-			'message' => 'Supplier Delete',
-		]);
-	}
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id) {
+        Supplier::destroy($id);
 
-	public function apiSuppliers() {
-		$suppliers = Supplier::all();
+        return response()->json([
+                    'success' => true,
+                    'message' => 'Supplier Delete',
+        ]);
+    }
 
-		return Datatables::of($suppliers)
-			->addColumn('action', function ($suppliers) {
-				return '<a onclick="editForm(' . $suppliers->id . ')" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-edit"></i> Edit</a> ' .
-				'<a onclick="deleteData(' . $suppliers->id . ')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i> Delete</a>';
-			})
-			->rawColumns(['action'])->make(true);
-	}
+    public function apiSuppliers() {
+        $suppliers = Supplier::all();
 
-	public function ImportExcel(Request $request) {
-		//Validasi
-		$this->validate($request, [
-			'file' => 'required|mimes:xls,xlsx',
-		]);
+        return Datatables::of($suppliers)
+                        ->addColumn('action', function ($suppliers) {
+                            $actions = '';
 
-		if ($request->hasFile('file')) {
-			//UPLOAD FILE
-			$file = $request->file('file'); //GET FILE
-			Excel::import(new SuppliersImport, $file); //IMPORT FILE
-			return redirect()->back()->with(['success' => 'Upload file data suppliers !']);
-		}
+                            // Check if the authenticated user is an admin
+                            if (auth()->user()->role == 'admin') {
+                                $actions .= '<a onclick="editForm(' . $suppliers->id . ')" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-edit"></i> Edit</a> ' .
+                                        '<a onclick="deleteData(' . $suppliers->id . ')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i> Delete</a>';
+                            } else {
+                                // Optional: Show a "Locked" or "View Only" badge for non-admins
+                                $actions .= '<span class="label label-default"><i class="fa fa-lock"></i> Read Only</span>';
+                            }
 
-		return redirect()->back()->with(['error' => 'Please choose file before!']);
-	}
+                            return $actions;
+                        })
+                        ->rawColumns(['action'])->make(true);
+    }
 
-	public function exportSuppliersAll() {
-		$suppliers = Supplier::all();
-		$pdf = PDF::loadView('suppliers.SuppliersAllPDF', compact('suppliers'));
-		return $pdf->download('suppliers.pdf');
-	}
+    public function ImportExcel(Request $request) {
+        //Validasi
+        $this->validate($request, [
+            'file' => 'required|mimes:xls,xlsx',
+        ]);
 
-	public function exportExcel() {
-		return (new ExportSuppliers)->download('suppliers.xlsx');
-	}
+        if ($request->hasFile('file')) {
+            //UPLOAD FILE
+            $file = $request->file('file'); //GET FILE
+            Excel::import(new SuppliersImport, $file); //IMPORT FILE
+            return redirect()->back()->with(['success' => 'Upload file data suppliers !']);
+        }
+
+        return redirect()->back()->with(['error' => 'Please choose file before!']);
+    }
+
+    public function exportSuppliersAll() {
+        $suppliers = Supplier::all();
+        $pdf = PDF::loadView('suppliers.SuppliersAllPDF', compact('suppliers'));
+        return $pdf->download('suppliers.pdf');
+    }
+
+    public function exportExcel() {
+        return (new ExportSuppliers)->download('suppliers.xlsx');
+    }
 }

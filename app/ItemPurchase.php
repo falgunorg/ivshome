@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ItemPurchase extends Model {
 
     protected $table = 'item_purchase';
-    protected $fillable = ['item_id', 'supplier_id', 'user_id', 'qty', 'date'];
+    protected $fillable = ['item_id', 'supplier_id', 'user_id', 'qty', 'date', 'status'];
     protected $hidden = ['created_at', 'updated_at'];
 
     public function item() {

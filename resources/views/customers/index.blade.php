@@ -14,12 +14,12 @@
     <div class="box-header">
         <h3 class="box-title">List of Customers</h3>
     </div>
-
+    @if(Auth::user()->role == 'admin')
     <div class="box-header">
         <a onclick="addForm()" class="btn btn-success" ><i class="fa fa-plus"></i> Add Customers</a>
-        <a href="{{ route('exportPDF.customersAll') }}" class="btn btn-danger"><i class="fa fa-file-pdf-o"></i> Export PDF</a>
-        <a href="{{ route('exportExcel.customersAll') }}" class="btn btn-primary"><i class="fa fa-file-excel-o"></i> Export Excel</a>
+
     </div>
+    @endif
 
 
     <!-- /.box-header -->

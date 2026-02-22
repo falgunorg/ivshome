@@ -76,25 +76,17 @@ class ItemController extends Controller {
             'item_type' => 'required|string',
             'qty' => 'required|numeric|min:1',
             'description' => 'nullable|string',
-            'trackable' => 'required|in:Yes,No',
-            // Permanent Requirement
+            'condition' => 'nullable',
+            'date_of_purchase' => 'nullable',
+            'date_of_expiry' => 'nullable',
             'location_id' => 'required|exists:locations,id',
-            // Conditional Requirements
-//            'location' => 'required_if:trackable,No|nullable|string|max:255',
-            'cabinet_id' => 'required_if:trackable,Yes|nullable|exists:cabinets,id',
-            'drawer_id' => 'required_if:trackable,Yes|nullable|exists:drawers,id',
+            'cabinet_id' => 'nullable',
+            'drawer_id' => 'nullable',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $input = $request->all();
         $input['user_id'] = Auth::id();
-
-        // 2. Data Integrity Cleanup
-        if ($request->trackable === 'No') {
-            // If not trackable, we only keep location text; clear the IDs
-            $input['cabinet_id'] = null;
-            $input['drawer_id'] = null;
-        }
 
         // 3. Image Uploading
         if ($request->hasFile('image')) {
@@ -160,25 +152,18 @@ class ItemController extends Controller {
         $request->validate([
             'name' => 'required|string|max:255',
             'item_type' => 'required|string',
-            'qty' => 'required|numeric|min:0',
-            'trackable' => 'required|in:Yes,No',
-            // Permanent Requirement
-            'location_id' => 'required|exists:locations,id',
-            // Conditional Requirements
-//            'location' => 'required_if:trackable,No|nullable|string|max:255',
-            'cabinet_id' => 'required_if:trackable,Yes|nullable|exists:cabinets,id',
-            'drawer_id' => 'required_if:trackable,Yes|nullable|exists:drawers,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'qty' => 'required|numeric|min:1',
             'description' => 'nullable|string',
+            'condition' => 'nullable',
+            'date_of_purchase' => 'nullable',
+            'date_of_expiry' => 'nullable',
+            'location_id' => 'required|exists:locations,id',
+            'cabinet_id' => 'nullable',
+            'drawer_id' => 'nullable',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $input = $request->all();
-
-        // 2. Data Integrity Cleanup
-        if ($request->trackable === 'No') {
-            $input['cabinet_id'] = null;
-            $input['drawer_id'] = null;
-        }
 
         // 3. Image Uploading
         if ($request->hasFile('image')) {
@@ -238,58 +223,6 @@ class ItemController extends Controller {
         ]);
     }
 
-    public function apiItemsORIGIN() {
-        // Eager load itemLocation (the relationship), cabinet, and drawer
-        $items = Item::with(['user', 'itemLocation', 'cabinet', 'drawer'])->select('items.*');
-
-        return Datatables::of($items)
-                        ->addColumn('by', function ($item) {
-                            return optional($item->user)->name ?? 'System';
-                        })
-                        ->addColumn('location', function ($item) {
-                            $html = '<i class="fa fa-map-marker text-muted"></i> ';
-
-                            // 1. Base Location (Always Required)
-                            if ($item->itemLocation) {
-                                $html .= '<a href="' . route('locations.show', $item->itemLocation->id) . '">' . e($item->itemLocation->name) . '</a>';
-                            } else {
-                                $html .= '<span class="text-muted">No Location</span>';
-                            }
-
-                            // 2. Sub-Location logic
-                            if ($item->trackable === 'Yes') {
-                                // Trackable Path: Site > Cabinet > Drawer
-                                if ($item->cabinet) {
-                                    $html .= ' <i class="fa fa-angle-right" style="margin:0 2px;"></i> ';
-                                    $html .= '<a href="' . route('cabinets.show', $item->cabinet->id) . '">' . e($item->cabinet->title) . '</a>';
-                                }
-                                if ($item->drawer) {
-                                    $html .= ' <i class="fa fa-angle-right" style="margin:0 2px;"></i> ';
-                                    $html .= '<span class="text-muted">' . e($item->drawer->title) . '</span>';
-                                }
-                            }
-
-                            return $html;
-                        })
-                        ->addColumn('serial_number', function ($item) {
-                            return '<a href="' . route('items.show', $item->id) . '" class="btn btn-link btn-xs">'
-                                    . e($item->serial_number) . '</a>';
-                        })
-                        ->addColumn('show_photo', function ($item) {
-                            return '<img class="img-thumbnail" width="50" src="' . $item->show_photo . '" alt="Photo">';
-                        })
-                        ->addColumn('action', function ($item) {
-                            return '
-                <a href="' . route('items.show', $item->id) . '" class="btn btn-info btn-xs"><i class="glyphicon glyphicon-eye-open"></i></a>
-                <a onclick="editForm(' . $item->id . ')" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-edit"></i></a>
-                <a onclick="deleteData(' . $item->id . ')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i></a>
-            ';
-                        })
-                        // IMPORTANT: Add 'location' to rawColumns so the HTML/Icons render correctly
-                        ->rawColumns(['show_photo', 'action', 'serial_number', 'location'])
-                        ->make(true);
-    }
-
     public function apiItems() {
         // 1. Added 'itemType' to the eager loading list
         $items = Item::with(['user', 'itemLocation', 'cabinet', 'drawer', 'itemType'])->select('items.*');
@@ -312,17 +245,16 @@ class ItemController extends Controller {
                                 $html .= '<span class="text-muted">No Location</span>';
                             }
 
-                            // Sub-Location logic
-                            if ($item->trackable === 'Yes') {
-                                if ($item->cabinet) {
-                                    $html .= ' <i class="fa fa-angle-right" style="margin:0 2px;"></i> ';
-                                    $html .= '<a href="' . route('cabinets.show', $item->cabinet->id) . '">' . e($item->cabinet->title) . '</a>';
-                                }
-                                if ($item->drawer) {
-                                    $html .= ' <i class="fa fa-angle-right" style="margin:0 2px;"></i> ';
-                                    $html .= '<span class="text-muted">' . e($item->drawer->title) . '</span>';
-                                }
+
+                            if ($item->cabinet) {
+                                $html .= ' <i class="fa fa-angle-right" style="margin:0 2px;"></i> ';
+                                $html .= '<a href="' . route('cabinets.show', $item->cabinet->id) . '">' . e($item->cabinet->title) . '</a>';
                             }
+                            if ($item->drawer) {
+                                $html .= ' <i class="fa fa-angle-right" style="margin:0 2px;"></i> ';
+                                $html .= '<span class="text-muted">' . e($item->drawer->title) . '</span>';
+                            }
+
                             return $html;
                         })
                         ->addColumn('serial_number', function ($item) {
@@ -333,25 +265,24 @@ class ItemController extends Controller {
                             return '<img class="img-thumbnail" width="50" src="' . $item->show_photo . '" alt="Photo">';
                         })
                         ->addColumn('action', function ($item) {
-                            return '
-        <a href="' . route('items.show', $item->id) . '" class="btn btn-info btn-xs"><i class="glyphicon glyphicon-eye-open"></i></a>
-        <a onclick="printLabel(' . $item->id . ')" class="btn btn-warning btn-xs"><i class="glyphicon glyphicon-print"></i></a>
-        <a onclick="editForm(' . $item->id . ')" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-edit"></i></a>
-        <a onclick="deleteData(' . $item->id . ')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i></a>
-    ';
+                            // 1. Buttons visible to every logged-in user (Show & Print)
+                            $html = '<a href="' . route('items.show', $item->id) . '" class="btn btn-info btn-xs"><i class="glyphicon glyphicon-eye-open"></i></a> ' .
+                                    '<a onclick="printLabel(' . $item->id . ')" class="btn btn-warning btn-xs"><i class="glyphicon glyphicon-print"></i></a> ';
+
+                            // 2. Show Edit button ONLY if the item belongs to the logged-in user
+                            if (auth()->check() && $item->user_id == auth()->id()) {
+                                $html .= '<a onclick="editForm(' . $item->id . ')" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-edit"></i></a> ';
+                            }
+
+                            // 3. Show Delete button ONLY if the user is an admin
+                            if (auth()->check() && auth()->user()->role == 'admin') {
+                                $html .= '<a onclick="deleteData(' . $item->id . ')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i></a>';
+                            }
+
+                            return $html;
                         })
 
 
-
-
-
-//                        ->addColumn('action', function ($item) {
-//                            return '
-//                <a href="' . route('items.show', $item->id) . '" class="btn btn-info btn-xs"><i class="glyphicon glyphicon-eye-open"></i></a>
-//                <a onclick="editForm(' . $item->id . ')" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-edit"></i></a>
-//                <a onclick="deleteData(' . $item->id . ')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i></a>
-//            ';
-//                        })
                         // 3. Added 'item_type' to rawColumns in case you use labels/html
                         ->rawColumns(['show_photo', 'action', 'serial_number', 'location', 'item_type'])
                         ->make(true);

@@ -22,6 +22,13 @@
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
+                    <div class="box-body">
+                        <div class="form-group">
+                            <label >Code</label>
+                            <input type="text" class="form-control" id="code" name="code" required>
+                            <span class="help-block with-errors"></span>
+                        </div>
+                    </div>
                     <!-- /.box-body -->
 
                 </div><!-- Log on to codeastro.com for more projects! -->

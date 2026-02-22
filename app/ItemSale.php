@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ItemSale extends Model {
 
     protected $table = 'item_sale';
-    protected $fillable = ['item_id', 'customer_id', 'user_id', 'qty', 'date'];
+  protected $fillable = ['item_id', 'customer_id', 'user_id', 'qty', 'date', 'status'];
     protected $hidden = ['created_at', 'updated_at'];
 
     public function item() {

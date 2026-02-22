@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cabinet extends Model {
 
-    protected $fillable = ['title', 'location_id', 'user_id'];
+    protected $fillable = ['title', 'location_id', 'user_id', 'code'];
 
     public function user() {
         return $this->belongsTo(User::class);

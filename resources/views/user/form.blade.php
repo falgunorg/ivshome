@@ -20,7 +20,7 @@
 
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+                        <input type="text" class="form-control" id="email" name="email" required>
                     </div>
 
                     <div class="form-group">
@@ -33,8 +33,6 @@
                         <select name="role" id="role" class="form-control" required>
                             <option value="admin">Admin</option>
                             <option value="staff">Staff</option>
-                            <option value="incharge">In-Charge</option>
-                            <option value="manager">Manager</option>
                         </select>
                     </div>
                 </div>

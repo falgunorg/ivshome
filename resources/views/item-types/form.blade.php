@@ -18,6 +18,13 @@
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-md-3">Code</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" id="code" name="code" required>
+                            <span class="help-block with-errors"></span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="modal-footer">

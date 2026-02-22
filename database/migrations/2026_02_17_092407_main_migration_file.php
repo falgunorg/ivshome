@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->string('email', 191)->unique();
             $table->string('password', 191);
             $table->rememberToken();
-            $table->enum('role', ['admin', 'staff', 'manager', 'incharge', 'officer'])->default('staff');
+            $table->enum('role', ['admin', 'staff'])->default('staff');
             $table->timestamps();
         });
 
@@ -43,6 +43,7 @@ return new class extends Migration {
         Schema::create('item_types', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name', 191);
+            $table->string('code', 191)->nullable();
             $table->timestamps();
         });
 
@@ -71,6 +72,7 @@ return new class extends Migration {
             $table->bigIncrements('id');
             $table->unsignedInteger('user_id');
             $table->string('name', 191)->nullable();
+            $table->string('code', 191)->nullable();
             $table->timestamps();
         });
 
@@ -79,6 +81,7 @@ return new class extends Migration {
             $table->unsignedInteger('location_id');
             $table->unsignedInteger('user_id');
             $table->string('title', 191)->nullable();
+            $table->string('code', 191)->nullable();
             $table->timestamps();
         });
 
@@ -99,10 +102,12 @@ return new class extends Migration {
             $table->string('description', 191)->nullable();
             $table->string('image', 191)->nullable();
             $table->integer('qty')->nullable();
-            $table->enum('trackable', ['Yes', 'No'])->default('No');
-            $table->string('location', 191)->nullable();
-            $table->integer('cabinet_id')->nullable();
+            $table->string('condition', 191)->nullable();
+            $table->string('date_of_purchase', 191)->nullable();
+            $table->string('warranty_date', 191)->nullable();
+            $table->string('date_of_expiry', 191)->nullable();
             $table->integer('location_id')->nullable();
+            $table->integer('cabinet_id')->nullable();
             $table->integer('drawer_id')->nullable();
             $table->timestamps();
         });

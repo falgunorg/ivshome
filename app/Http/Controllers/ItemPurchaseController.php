@@ -66,15 +66,31 @@ class ItemPurchaseController extends Controller {
                     $data['user_id'] = Auth::id();
 
                     // 3. Create the Purchase Record
-                    ItemPurchase::create($data);
+                    $purchase = ItemPurchase::create($data);
 
                     // 4. Update Inventory (Increment)
                     $item = Item::findOrFail($request->item_id);
-                    $item->increment('qty', $request->qty);
+
+                    // 4. Admin Auto-Approval Logic
+                    if (auth()->user()->role == 'admin') {
+                        // Decrease item stock immediately for Admin
+                        $item->increment('qty', $request->qty);
+
+                        // Update status to approved
+                        $purchase->status = 'approved'; // Fixed syntax (property, not method)
+                        $purchase->save();
+
+                        $msg = 'Purchase record created and stock updated.';
+                    } else {
+                        $msg = 'Purchase request submitted for Admin approval.';
+                    }
+
+
+
 
                     return response()->json([
                                 'success' => true,
-                                'message' => 'Items In Created Successfully'
+                                'message' => $msg
                     ]);
                 });
     }

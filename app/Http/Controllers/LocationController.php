@@ -148,9 +148,22 @@ class LocationController extends Controller {
                             return implode(' ', $links);
                         })
                         ->addColumn('action', function ($location) {
-                            return '<a href="' . route('locations.show', $location->id) . '" class="btn btn-info btn-xs"><i class="glyphicon glyphicon-eye-open"></i> Show</a> ' .
-                                    '<a onclick="editForm(' . $location->id . ')" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-edit"></i> Edit</a> ' .
-                                    '<a onclick="deleteData(' . $location->id . ')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i> Delete</a>';
+                            // 1. Define the 'Show' button which is visible to everyone
+                            $html = '<a href="' . route('locations.show', $location->id) . '" class="btn btn-info btn-xs">' .
+                                    '<i class="glyphicon glyphicon-eye-open"></i> Show</a> ';
+
+                            // 2. Check if the user is an admin before adding restricted actions
+                            if (auth()->check() && auth()->user()->role == 'admin') {
+                                // Append Edit Button
+                                $html .= '<a onclick="editForm(' . $location->id . ')" class="btn btn-primary btn-xs">' .
+                                        '<i class="glyphicon glyphicon-edit"></i> Edit</a> ';
+
+                                // Append Delete Button
+                                $html .= '<a onclick="deleteData(' . $location->id . ')" class="btn btn-danger btn-xs">' .
+                                        '<i class="glyphicon glyphicon-trash"></i> Delete</a>';
+                            }
+
+                            return $html;
                         })
                         ->rawColumns(['cabinets', 'action'])
                         ->make(true);

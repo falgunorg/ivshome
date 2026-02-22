@@ -43,6 +43,7 @@ class DamageController extends Controller {
 
         $item = Item::findOrFail($request->item_id);
 
+        // 1. Check stock availability
         if ($item->qty < $request->qty) {
             return response()->json([
                         'success' => false,
@@ -52,22 +53,38 @@ class DamageController extends Controller {
 
         $data = $request->only(['item_id', 'qty', 'date', 'remarks']);
         $data['user_id'] = Auth::id();
-        $data['image'] = null;
 
+        // Default status is 'pending' (from migration), 
+        // but we can be explicit here for clarity:
+        $data['status'] = 'pending';
+
+        // 2. Handle Image Upload
         if ($request->hasFile('image')) {
-            $filename = Str::uuid() . '.' . $request->image->getClientOriginalExtension();
+            $filename = \Str::uuid() . '.' . $request->image->getClientOriginalExtension();
             $request->image->move(public_path('upload/evidence'), $filename);
             $data['image'] = 'upload/evidence/' . $filename;
         }
 
-        Damage::create($data);
+        // 3. Create the record
+        $damage = Damage::create($data);
 
-        // decrease item stock
-        $item->decrement('qty', $request->qty);
+        // 4. Admin Auto-Approval Logic
+        if (auth()->user()->role == 'admin') {
+            // Decrease item stock immediately for Admin
+            $item->decrement('qty', $request->qty);
+
+            // Update status to approved
+            $damage->status = 'approved'; // Fixed syntax (property, not method)
+            $damage->save();
+
+            $msg = 'Damage record created and stock updated.';
+        } else {
+            $msg = 'Damage request submitted for Admin approval.';
+        }
 
         return response()->json([
                     'success' => true,
-                    'message' => 'Damage record created successfully.'
+                    'message' => $msg
         ]);
     }
 

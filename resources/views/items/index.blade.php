@@ -23,14 +23,19 @@
         <table id="items-table" class="table table-bordered table-hover table-striped">
             <thead>
                 <tr>
-                    <th width="5%">ID</th>
+                    <th>S/N</th>
                     <th>Name</th>
-                    <th>Type/Category</th>
-                    <th>Qty.</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Condition</th>
+                    <th>Purchase Date</th>
+                    <th>Warranty Date</th>
+                    <th>Expiry Date</th>
                     <th>Location</th>
                     <th>Image</th>
                     <th>By</th>
-                    <th width="15%">Actions</th>
+                    <th width="10%">Actions</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -88,8 +93,12 @@
                     // Point the iframe to your show page with a print flag
                     iframe.src = "{{ url('items') }}/" + id + "?print=true";
                 }
-
                 var save_method;
+
+
+
+
+//Index page Table
                 var table = $('#items-table').DataTable({
                     processing: true,
                     serverSide: true,
@@ -98,7 +107,13 @@
                         {data: 'serial_number', name: 'serial_number'},
                         {data: 'name', name: 'name'},
                         {data: 'item_type', name: 'item_type'},
+                        {data: 'description', name: 'description'}, // New
                         {data: 'qty', name: 'qty'},
+                        {data: 'condition', name: 'condition'}, // New
+                        {data: 'date_of_purchase', name: 'date_of_purchase'}, // New
+                        {data: 'warranty_date', name: 'warranty_date'}, // New
+
+                        {data: 'date_of_expiry', name: 'date_of_expiry'}, // New
                         {data: 'location', name: 'location'},
                         {data: 'show_photo', name: 'show_photo', orderable: false, searchable: false},
                         {data: 'by', name: 'by', orderable: false},
@@ -107,24 +122,7 @@
                 });
 
                 $(document).ready(function () {
-                    // 1. Toggle visibility and validation based on Trackable choice
-                    $('#trackable').on('change', function () {
-                        if ($(this).val() === 'Yes') {
-                            $('#storage_group').show();
-                            // Set requirements for Trackable mode
-                            $('#cabinet_id, #drawer_id').attr('required', 'required');
-
-                        } else {
-                            $('#storage_group').hide();
-
-
-                            // Set requirements for Manual mode
-
-                            $('#cabinet_id, #drawer_id').val('').removeAttr('required');
-                        }
-                    });
-
-                    // 2. DEPENDENT DROPDOWN: Location -> Cabinet
+                    // 1. DEPENDENT DROPDOWN: Location -> Cabinet
                     $('#location_id').on('change', function () {
                         var locationID = $(this).val();
                         if (locationID) {
@@ -145,7 +143,7 @@
                         }
                     });
 
-                    // 3. DEPENDENT DROPDOWN: Cabinet -> Drawer
+                    // 2. DEPENDENT DROPDOWN: Cabinet -> Drawer
                     $('#cabinet_id').on('change', function () {
                         var cabinetID = $(this).val();
                         if (cabinetID) {
@@ -171,9 +169,9 @@
                     $('#modal-form form')[0].reset();
                     $('.modal-title').text('Add Items');
 
-                    // Initial state for Add
-                    $('#cabinet_id, #drawer_id').empty().append('<option value="" selected disabled>-- Select Location First --</option>');
-                    $('#trackable').val('No').trigger('change');
+                    // Reset dependent dropdowns to default state
+                    $('#cabinet_id').empty().append('<option value="" selected disabled>-- Select Location First --</option>');
+                    $('#drawer_id').empty().append('<option value="" selected disabled>-- Select Cabinet First --</option>');
                 }
 
                 function editForm(id) {
@@ -189,41 +187,38 @@
                             $('#modal-form').modal('show');
                             $('.modal-title').text('Edit Items');
 
+                            // Map all database fields to form inputs
                             $('#id').val(data.id);
-                            $('#name').val(data.name);
-                            $('#description').val(data.description);
-                            $('#qty').val(data.qty);
-                            $('#item_type').val(data.item_type);
 
-                            // 1. Set Location (Always visible)
+                            $('#name').val(data.name);
+                            $('#item_type').val(data.item_type);
+                            $('#qty').val(data.qty);
+                            $('#description').val(data.description);
+                            $('#condition').val(data.condition);
+                            $('#date_of_purchase').val(data.date_of_purchase);
+                            $('#warranty_date').val(data.warranty_date);
+                            $('#date_of_expiry').val(data.date_of_expiry);
                             $('#location_id').val(data.location_id);
 
-                            // 2. Set Trackable and trigger the UI toggle
-                            $('#trackable').val(data.trackable).trigger('change');
-
-                            if (data.trackable === 'No') {
-//                              
-                            } else {
-                                // Logic to load nested dropdowns sequentially for Edit
-                                if (data.location_id) {
-                                    $.get("{{ url('api/cabinets-by-location') }}/" + data.location_id, function (cabinets) {
-                                        $('#cabinet_id').empty().append('<option value="">-- Select Cabinet --</option>');
-                                        $.each(cabinets, function (k, v) {
-                                            var selected = (v.id == data.cabinet_id) ? 'selected' : '';
-                                            $('#cabinet_id').append('<option value="' + v.id + '" ' + selected + '>' + v.title + '</option>');
-                                        });
-
-                                        if (data.cabinet_id) {
-                                            $.get("{{ url('api/drawers-by-cabinet') }}/" + data.cabinet_id, function (drawers) {
-                                                $('#drawer_id').empty().append('<option value="">-- Select Drawer --</option>');
-                                                $.each(drawers, function (k, v) {
-                                                    var selected = (v.id == data.drawer_id) ? 'selected' : '';
-                                                    $('#drawer_id').append('<option value="' + v.id + '" ' + selected + '>' + v.title + '</option>');
-                                                });
-                                            });
-                                        }
+                            // Sequential loading for nested dropdowns
+                            if (data.location_id) {
+                                $.get("{{ url('api/cabinets-by-location') }}/" + data.location_id, function (cabinets) {
+                                    $('#cabinet_id').empty().append('<option value="">-- Select Cabinet --</option>');
+                                    $.each(cabinets, function (k, v) {
+                                        var selected = (v.id == data.cabinet_id) ? 'selected' : '';
+                                        $('#cabinet_id').append('<option value="' + v.id + '" ' + selected + '>' + v.title + '</option>');
                                     });
-                                }
+
+                                    if (data.cabinet_id) {
+                                        $.get("{{ url('api/drawers-by-cabinet') }}/" + data.cabinet_id, function (drawers) {
+                                            $('#drawer_id').empty().append('<option value="">-- Select Drawer --</option>');
+                                            $.each(drawers, function (k, v) {
+                                                var selected = (v.id == data.drawer_id) ? 'selected' : '';
+                                                $('#drawer_id').append('<option value="' + v.id + '" ' + selected + '>' + v.title + '</option>');
+                                            });
+                                        });
+                                    }
+                                });
                             }
                         },
                         error: function () {

@@ -192,13 +192,94 @@
                     <h3 class="modal-title">Add Item to {{ $cabinet->title }}</h3>
                 </div>
 
+
                 <div class="modal-body">
-                    <input type="hidden" name="id" id="id">
+                    <input type="hidden" id="id" name="id">
                     <input type="hidden" name="location_id" value="{{ $cabinet->location_id }}">
                     <input type="hidden" name="cabinet_id" value="{{ $cabinet->id }}">
-                    <input type="hidden" name="trackable" value="Yes">
 
                     <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>User Name</label>
+                                    <input readonly type="text" class="form-control" value="{{ \Auth::user()->name }}">
+                                    <span class="help-block with-errors"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Item Name</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                    <span class="help-block with-errors"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Item Type</label>
+                                    <select class="form-control" id="item_type" name="item_type" required>
+                                        <option value="" selected disabled>-- Select Category --</option>
+                                        @foreach($item_types as $id => $name)
+                                        <option value="{{ $id }}">{{ $name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <span class="help-block with-errors"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Quantity</label>
+                                    <input type="number" min="1" class="form-control" id="qty" name="qty" required>
+                                    <span class="help-block with-errors"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Condition</label>
+                                    <select class="form-control" id="condition" name="condition">
+                                        <option value="New">New</option>
+                                        <option value="Good">Good</option>
+                                        <option value="Fair">Fair</option>
+                                        <option value="Damaged">Damaged</option>
+                                        <option value="Replace">Replace</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Date of Purchase</label>
+                                    <input type="date" class="form-control" id="date_of_purchase" name="date_of_purchase">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Warranty Time</label>
+                                    <input type="date" class="form-control" id="warranty_date" name="warranty_date">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Date of Expiry</label>
+                                    <input type="date" class="form-control" id="date_of_expiry" name="date_of_expiry">
+                                </div>
+                            </div>
+                        </div>
+
+
 
 
                         <div class="row">
@@ -213,57 +294,21 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label>Item Name</label>
-                                    <input type="text" class="form-control" name="name" required>
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="form-group">
-                                    <label>Item Type</label>
-                                    <select class="form-control" id="item_type" name="item_type" required>
-                                        <option value="" selected disabled>-- Select Item Category --</option>
-
-                                        @foreach($item_types as $id => $name)
-                                        <option value="{{ $id }}">{{ $name }}</option>
-                                        @endforeach
-                                    </select>
-                                    <span class="help-block with-errors"></span>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-12">
-                                <div class="form-group">
-                                    <label>Quantity</label>
-                                    <input type="number" min="1" class="form-control" id="qty" name="qty" required>
-                                    <span class="help-block with-errors"></span>
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="form-group">
-                                    <label>Description</label>
-                                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-                                    <span class="help-block with-errors"></span>
-                                </div>
-                            </div>
-
-
-                            <div class="col-lg-12">
-                                <div class="form-group">
-                                    <label>Image</label>
-                                    <input type="file" class="form-control" name="image">
-                                </div>
-                            </div>
                         </div>
 
 
+                        <div class="form-group">
+                            <label>Item Image</label>
+                            <input type="file" class="form-control" id="image" name="image">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">Save Item</button>
+                    <button type="submit" onclick="setPrint(false)" class="btn btn-success">Submit</button>
                 </div>
+
+
             </form>
         </div>
     </div>
@@ -279,53 +324,54 @@
 
 
 <script>
-                    $(document).ready(function () {
-                        // Initialize DataTable
-                        $('.datatable').DataTable({
-                            'paging': true,
-                            'searching': true,
-                            'ordering': true,
-                            'info': true,
-                            'autoWidth': false
+
+                        $(document).ready(function () {
+                            // Initialize DataTable
+                            $('.datatable').DataTable({
+                                'paging': true,
+                                'searching': true,
+                                'ordering': true,
+                                'info': true,
+                                'autoWidth': false
+                            });
+
+                            // Handle Form Submission via AJAX
+                            $('#modal-form form').validator().on('submit', function (e) {
+                                if (!e.isDefaultPrevented()) {
+                                    var id = $('#id').val();
+                                    var url = $(this).attr('action');
+
+                                    $.ajax({
+                                        url: url,
+                                        type: "POST",
+                                        // Use FormData to handle file uploads (images)
+                                        data: new FormData($("#modal-form form")[0]),
+                                        contentType: false,
+                                        processData: false,
+                                        success: function (data) {
+                                            // 1. Hide the modal
+                                            $('#modal-form').modal('hide');
+
+                                            // 2. Reload the page to show new item
+                                            location.reload();
+                                        },
+                                        error: function (data) {
+                                            alert('Oops! Something went wrong. Please check your input.');
+                                        }
+                                    });
+                                    return false;
+                                }
+                            });
                         });
 
-                        // Handle Form Submission via AJAX
-                        $('#modal-form form').validator().on('submit', function (e) {
-                            if (!e.isDefaultPrevented()) {
-                                var id = $('#id').val();
-                                var url = $(this).attr('action');
-
-                                $.ajax({
-                                    url: url,
-                                    type: "POST",
-                                    // Use FormData to handle file uploads (images)
-                                    data: new FormData($("#modal-form form")[0]),
-                                    contentType: false,
-                                    processData: false,
-                                    success: function (data) {
-                                        // 1. Hide the modal
-                                        $('#modal-form').modal('hide');
-
-                                        // 2. Reload the page to show new item
-                                        location.reload();
-                                    },
-                                    error: function (data) {
-                                        alert('Oops! Something went wrong. Please check your input.');
-                                    }
-                                });
-                                return false;
-                            }
-                        });
-                    });
-
-                    function addItem() {
-                        save_method = "add";
-                        $('input[name=_method]').val('POST');
-                        $('#modal-form').modal('show');
-                        $('#modal-form form')[0].reset();
-                        $('.modal-title').text('Add Item to {{ $cabinet->title }}');
-                        $('#modal-form form').attr('action', "{{ route('items.store') }}");
-                    }
+                        function addItem() {
+                            save_method = "add";
+                            $('input[name=_method]').val('POST');
+                            $('#modal-form').modal('show');
+                            $('#modal-form form')[0].reset();
+                            $('.modal-title').text('Add Item to {{ $cabinet->title }}');
+                            $('#modal-form form').attr('action', "{{ route('items.store') }}");
+                        }
 </script>
 
 
