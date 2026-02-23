@@ -23,7 +23,7 @@ class DamageController extends Controller {
      */
     public function index() {
         // Use get() instead of pluck() to keep all column data
-        $items = Item::orderBy('name', 'ASC')->get(['id', 'name', 'serial_number']);
+        $items = Item::orderBy('name', 'ASC')->where('status', 'approved')->get(['id', 'name', 'serial_number']);
 
         $invoice_data = Damage::latest()->get();
 
@@ -108,9 +108,6 @@ class DamageController extends Controller {
         $damage = Damage::findOrFail($id);
         $item = Item::findOrFail($request->item_id);
 
-        // restore previous stock
-        $item->increment('qty', $damage->qty);
-
         // check again
         if ($item->qty < $request->qty) {
             return response()->json([
@@ -120,9 +117,6 @@ class DamageController extends Controller {
         }
 
         $damage->update($request->only(['item_id', 'qty', 'date', 'remarks']));
-
-        // deduct updated qty
-        $item->decrement('qty', $request->qty);
 
         return response()->json([
                     'success' => true,
@@ -136,9 +130,10 @@ class DamageController extends Controller {
     public function destroy($id) {
         $damage = Damage::findOrFail($id);
 
-        // restore stock on delete
-        $damage->item->increment('qty', $damage->qty);
-
+        if ($damage->status == 'approved') {
+            // restore stock on delete
+            $damage->item->increment('qty', $damage->qty);
+        }
         $damage->delete();
 
         return response()->json([
@@ -157,10 +152,18 @@ class DamageController extends Controller {
                         ->addColumn('item_name', fn($d) => $d->item->name ?? '-')
                         ->addColumn('user_name', fn($d) => $d->user->name ?? '-')
                         ->addColumn('action', function ($d) {
-                            return '
+                            $buttons = '';
+
+                            // Condition: Must be the owner AND status must not be 'approved'
+                            if ($d->user_id == auth()->id() && $d->status !== 'approved') {
+                                $buttons .= '
                     <button onclick="editForm(' . $d->id . ')" class="btn btn-primary btn-xs">Edit</button>
                     <button onclick="deleteData(' . $d->id . ')" class="btn btn-danger btn-xs">Delete</button>
                 ';
+                            }
+
+                            // Return buttons or a placeholder if conditions aren't met
+                            return $buttons ?: '<span class="badge badge-secondary">No Actions</span>';
                         })
                         ->rawColumns(['action'])
                         ->make(true);

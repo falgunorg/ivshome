@@ -13,25 +13,19 @@
 
                 <div class="modal-body">
                     <input type="hidden" id="id" name="id">
-
-
                     <div class="box-body">
                         <div class="form-group">
                             <label >Name</label>
                             <input type="text" class="form-control" id="name" name="name"  autofocus required>
                             <span class="help-block with-errors"></span>
                         </div>
-                    </div>
-                    <div class="box-body">
                         <div class="form-group">
                             <label >Code</label>
                             <input type="text" class="form-control" id="code" name="code" required>
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
-                    <!-- /.box-body -->
-
-                </div><!-- Log on to codeastro.com for more projects! -->
+                </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Cancel</button>

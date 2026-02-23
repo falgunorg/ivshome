@@ -25,6 +25,61 @@
         @endif
 
         <div class="row">
+            <div class="col-md-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><b>Sale Requests</b></div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Staff</th>
+                                    <th>Location</th>
+                                    <th>Qty</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($pending_items as $i)
+                                <tr>
+                                    <td>{{ $i->name }}</td>
+                                    {{-- Using optional() or null coalescing to prevent errors if a user or location is deleted --}}
+                                    <td>{{ $i->user->name ?? 'Unknown User' }}</td>
+                                    <td>
+                                        {{ $i->itemLocation->name ?? 'N/A' }} - 
+                                        {{ $i->cabinet->title ?? 'N/A' }} - 
+                                        {{ $i->drawer->title ?? 'N/A' }}
+                                    </td>
+                                    <td><span class="label label-warning">{{ $i->qty }}</span></td>
+                                    <td>{{ ucfirst($i->status) }}</td>
+                                    <td>
+                                        <form action="{{ route('requests.item.approve', $i->id) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-xs btn-success" title="Approve" onclick="return confirm('Approve this item?')">
+                                                <i class="fa fa-check"></i>
+                                            </button>
+                                        </form>
+
+                                        <form action="{{ route('requests.item.reject', $i->id) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-xs btn-danger" title="Rejected" onclick="return confirm('Reject this item?')">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    {{-- Updated colspan to 6 to match your column count --}}
+                                    <td colspan="6" class="text-center text-muted">No pending items found.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-4">
                 <div class="panel panel-default">
                     <div class="panel-heading"><b>Sale Requests</b></div>
@@ -35,6 +90,7 @@
                                     <th>Item</th>
                                     <th>Staff</th>
                                     <th>Qty</th>
+                                    <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -44,6 +100,7 @@
                                     <td>{{ $sale->item->name }}</td>
                                     <td>{{ $sale->user->name }}</td>
                                     <td><span class="label label-warning">{{ $sale->qty }}</span></td>
+                                    <td>{{$sale->status}}</td>
                                     <td>
                                         <form action="{{ route('requests.sale.approve', $sale->id) }}" method="POST" style="display:inline;">
                                             @csrf
@@ -57,7 +114,7 @@
                                     </td>
                                 </tr>
                                 @empty
-                                <tr><td colspan="4" class="text-center text-muted">No pending sales</td></tr>
+                                <tr><td colspan="5" class="text-center text-muted">No pending sales</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -65,6 +122,9 @@
                 </div>
             </div>
 
+
+        </div>
+        <div class="row">
             <div class="col-md-4">
                 <div class="panel panel-default">
                     <div class="panel-heading"><b>Purchase Requests</b></div>
@@ -75,6 +135,7 @@
                                     <th>Item</th>
                                     <th>Staff</th>
                                     <th>Qty</th>
+                                    <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -84,6 +145,7 @@
                                     <td>{{ $purchase->item->name }}</td>
                                     <td>{{ $purchase->user->name }}</td>
                                     <td><span class="label label-primary">{{ $purchase->qty }}</span></td>
+                                    <td>{{$purchase->status}}</td>
                                     <td>
                                         <form action="{{ route('requests.purchase.approve', $purchase->id) }}" method="POST" style="display:inline;">
                                             @csrf
@@ -97,7 +159,7 @@
                                     </td>
                                 </tr>
                                 @empty
-                                <tr><td colspan="4" class="text-center text-muted">No pending purchases</td></tr>
+                                <tr><td colspan="5" class="text-center text-muted">No pending purchases</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -115,6 +177,7 @@
                                     <th>Item</th>
                                     <th>Staff</th>
                                     <th>Qty</th>
+                                    <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -124,6 +187,7 @@
                                     <td>{{ $damage->item->name }}</td>
                                     <td>{{ $damage->user->name }}</td>
                                     <td><span class="label label-danger">{{ $damage->qty }}</span></td>
+                                    <td>{{$damage->status}}</td>
                                     <td>
                                         <form action="{{ route('requests.damage.approve', $damage->id) }}" method="POST" style="display:inline;">
                                             @csrf
@@ -137,7 +201,7 @@
                                     </td>
                                 </tr>
                                 @empty
-                                <tr><td colspan="4" class="text-center text-muted">No pending damage reports</td></tr>
+                                <tr><td colspan="5" class="text-center text-muted">No pending damage reports</td></tr>
                                 @endforelse
                             </tbody>
                         </table>

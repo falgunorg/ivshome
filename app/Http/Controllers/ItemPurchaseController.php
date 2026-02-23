@@ -24,7 +24,7 @@ class ItemPurchaseController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        $items = Item::orderBy('name', 'ASC')->get(['id', 'name', 'serial_number']);
+        $items = Item::orderBy('name', 'ASC')->where('status', 'approved')->get(['id', 'name', 'serial_number']);
 
         $suppliers = Supplier::orderBy('name', 'ASC')
                 ->get()
@@ -134,10 +134,6 @@ class ItemPurchaseController extends Controller {
         $item_purchase = ItemPurchase::findOrFail($id);
         $item_purchase->update($request->all());
 
-        $item = Item::findOrFail($request->item_id);
-        $item->qty += $request->qty;
-        $item->update();
-
         return response()->json([
                     'success' => true,
                     'message' => 'Item In Updated'
@@ -160,7 +156,7 @@ class ItemPurchaseController extends Controller {
     }
 
     public function apiItemsIn() {
-        $item = ItemPurchase::all();
+        $item = ItemPurchase::latest();
 
         return Datatables::of($item)
                         ->addColumn('items_name', function ($item) {
@@ -172,9 +168,19 @@ class ItemPurchaseController extends Controller {
                         ->addColumn('by', function ($item) {
                             return $item->user->name;
                         })
-                        ->addColumn('action', function ($item) {
-                            return '<a onclick="editForm(' . $item->id . ')" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-edit"></i> Edit</a> ' .
-                                    '<a onclick="deleteData(' . $item->id . ')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i> Delete</a> ';
+                        ->addColumn('action', function ($d) {
+                            $buttons = '';
+
+                            // Condition: Must be the owner AND status must not be 'approved'
+                            if ($d->user_id == auth()->id() && $d->status !== 'approved') {
+                                $buttons .= '
+                    <button onclick="editForm(' . $d->id . ')" class="btn btn-primary btn-xs">Edit</button>
+                    <button onclick="deleteData(' . $d->id . ')" class="btn btn-danger btn-xs">Delete</button>
+                ';
+                            }
+
+                            // Return buttons or a placeholder if conditions aren't met
+                            return $buttons ?: '<span class="badge badge-secondary">No Actions</span>';
                         })
                         ->rawColumns(['items_name', 'supplier_name', 'action'])->make(true);
     }

@@ -39,6 +39,7 @@
                     <th>Qty</th>
                     <th>Date</th>
                     <th>By</th>
+                    <th>Status</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -65,6 +66,7 @@
                     <th>Qty</th>
                     <th>Date</th>
                     <th>By</th>
+                    <th>Status</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -78,11 +80,14 @@
                     <td>{{ $i->qty }}</td>
                     <td>{{ $i->date }}</td>
                     <td>{{ $i->user->name }}</td>
+                    <td>{{ $i->status}}</td>
                     <td>
+                        @if($i->status=='approved')
                         <a href="{{ route('exportPDF.damage', ['id' => $i->id]) }}"
                            class="btn btn-sm btn-danger">
                             Export Invoice
                         </a>
+                        @endif
                     </td>
                 </tr>
             </tbody>
@@ -142,6 +147,7 @@
             {data: 'qty', name: 'qty'},
             {data: 'date', name: 'date'},
             {data: 'user_name', name: 'user_name'},
+            {data: 'status', name: 'status'},
             {data: 'action', name: 'action', orderable: false, searchable: false}
         ]
     });

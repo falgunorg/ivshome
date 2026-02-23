@@ -99,6 +99,16 @@ class ItemController extends Controller {
         // 4. Create record
         $item = Item::create($input);
 
+        // 4. Admin Auto-Approval Logic
+        if (auth()->user()->role == 'admin') {
+            $item->status = 'approved'; // Fixed syntax (property, not method)
+            $item->save();
+            $msg = 'Item Added Successfully';
+        } else {
+            $msg = 'Item request submitted for Admin approval.';
+        }
+
+
         // 5. Create Log
         ItemLog::create([
             'item_id' => $item->id,
@@ -108,7 +118,7 @@ class ItemController extends Controller {
 
         return response()->json([
                     'success' => true,
-                    'message' => 'Item Created Successfully',
+                    'message' => $msg,
                     'id' => $item->id
         ]);
     }

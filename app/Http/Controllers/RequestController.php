@@ -17,11 +17,12 @@ class RequestController extends Controller {
     }
 
     public function index() {
-        $pending_sales = ItemSale::with('item', 'user')->where('status', 'pending')->get();
-        $pending_purchases = ItemPurchase::with('item', 'user')->where('status', 'pending')->get();
-        $pending_damages = Damage::with('item', 'user')->where('status', 'pending')->get();
+        $pending_sales = ItemSale::with('item', 'user')->where('status', '!=', 'approved')->get();
+        $pending_purchases = ItemPurchase::with('item', 'user')->where('status', '!=', 'approved')->get();
+        $pending_damages = Damage::with('item', 'user')->where('status', '!=', 'approved')->get();
+        $pending_items = Item::with('user', 'itemType', 'itemLocation', 'drawer', 'cabinet')->where('status', '!=', 'approved')->get();
 
-        return view('request.index', compact('pending_sales', 'pending_purchases', 'pending_damages'));
+        return view('request.index', compact('pending_sales', 'pending_purchases', 'pending_damages', 'pending_items'));
     }
 
     public function approveSale($id) {
@@ -66,6 +67,20 @@ class RequestController extends Controller {
         });
 
         return back()->with('success', 'Damage report approved.');
+    }
+
+    public function approveItem($id) {
+        $item = Item::findOrFail($id);
+        $item->status = 'approved';
+        $item->save();
+        return back()->with('success', 'Item approved.');
+    }
+
+    public function rejectItem($id) {
+        $item = Item::findOrFail($id);
+        $item->status = 'rejected';
+        $item->save();
+        return back()->with('success', 'Item rejected.');
     }
 
     public function declineRequest($id, $type) {

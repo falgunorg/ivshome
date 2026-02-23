@@ -47,16 +47,17 @@
                     <i class="fa fa-map"></i> <span>Locations</span>
                 </a>
             </li>
+            <li class="{{ Request::routeIs('cabinets.*') ? 'active' : '' }}">
+                <a href="{{ route('cabinets.index') }}">
+                    <i class="fa fa-file"></i> <span>Cabinet & Drawers</span>
+                </a>
+            </li>
             <li class="{{ Request::routeIs('items.*') ? 'active' : '' }}">
                 <a href="{{ route('items.index') }}">
                     <i class="fa fa-cubes"></i> <span>Item</span>
                 </a>
             </li>
-            <li class="{{ Request::routeIs('damages.*') ? 'active' : '' }}">
-                <a href="{{ route('damages.index') }}">
-                    <i class="fa fa-cart-plus"></i> <span>Damage & Losses</span>
-                </a>
-            </li>
+
             <li class="{{ Request::routeIs('suppliers.*') ? 'active' : '' }}">
                 <a href="{{ route('suppliers.index') }}">
                     <i class="fa fa-truck"></i> <span>Supplier</span>
@@ -79,13 +80,13 @@
                 </a>
             </li>
 
-
-
-            <li class="{{ Request::routeIs('cabinets.*') ? 'active' : '' }}">
-                <a href="{{ route('cabinets.index') }}">
-                    <i class="fa fa-file"></i> <span>Cabinet & Drawers</span>
+            <li class="{{ Request::routeIs('damages.*') ? 'active' : '' }}">
+                <a href="{{ route('damages.index') }}">
+                    <i class="fa fa-trash"></i> <span>Damage & Losses</span>
                 </a>
             </li>
+
+
             <hr/>
             <li class="{{ Request::routeIs('groceries.*') ? 'active' : '' }}">
                 <a href="{{ route('groceries.index') }}">

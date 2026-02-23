@@ -25,7 +25,7 @@ class ItemSaleController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        $items = Item::orderBy('name', 'ASC')->get(['id', 'name', 'serial_number']);
+        $items = Item::orderBy('name', 'ASC')->where('status', 'approved')->get(['id', 'name', 'serial_number']);
 
         $customers = Customer::orderBy('name', 'ASC')
                 ->get()
@@ -85,17 +85,10 @@ class ItemSaleController extends Controller {
                         $sale->status = 'approved'; // Fixed syntax (property, not method)
                         $sale->save();
 
-                        $msg = 'Purchase record created and stock updated.';
+                        $msg = 'Sale record created and stock updated.';
                     } else {
-                        $msg = 'Purchase request submitted for Admin approval.';
+                        $msg = 'Sale request submitted for Admin approval.';
                     }
-
-
-
-
-
-
-
                     return response()->json([
                                 'success' => true,
                                 'message' => $msg
@@ -140,11 +133,18 @@ class ItemSaleController extends Controller {
         ]);
 
         $item_sale = ItemSale::findOrFail($id);
-        $item_sale->update($request->all());
 
         $item = Item::findOrFail($request->item_id);
-        $item->qty -= $request->qty;
-        $item->update();
+
+        // check again
+        if ($item->qty < $request->qty) {
+            return response()->json([
+                        'success' => false,
+                        'message' => 'Insufficient stock.'
+                            ], 422);
+        }
+
+        $item_sale->update($request->all());
 
         return response()->json([
                     'success' => true,
@@ -168,7 +168,7 @@ class ItemSaleController extends Controller {
     }
 
     public function apiItemsOut() {
-        $item = ItemSale::all();
+        $item = ItemSale::latest();
 
         return Datatables::of($item)
                         ->addColumn('items_name', function ($item) {
@@ -180,9 +180,19 @@ class ItemSaleController extends Controller {
                         ->addColumn('by', function ($item) {
                             return $item->user->name;
                         })
-                        ->addColumn('action', function ($item) {
-                            return'<a onclick="editForm(' . $item->id . ')" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-edit"></i> Edit</a> ' .
-                                    '<a onclick="deleteData(' . $item->id . ')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i> Delete</a>';
+                        ->addColumn('action', function ($d) {
+                            $buttons = '';
+
+                            // Condition: Must be the owner AND status must not be 'approved'
+                            if ($d->user_id == auth()->id() && $d->status !== 'approved') {
+                                $buttons .= '
+                    <button onclick="editForm(' . $d->id . ')" class="btn btn-primary btn-xs">Edit</button>
+                    <button onclick="deleteData(' . $d->id . ')" class="btn btn-danger btn-xs">Delete</button>
+                ';
+                            }
+
+                            // Return buttons or a placeholder if conditions aren't met
+                            return $buttons ?: '<span class="badge badge-secondary">No Actions</span>';
                         })
                         ->rawColumns(['items_name', 'customer_name', 'action'])->make(true);
     }

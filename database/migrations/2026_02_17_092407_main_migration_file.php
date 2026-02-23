@@ -49,8 +49,9 @@ return new class extends Migration {
 
         Schema::create('groceries', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name', 191);
-            $table->decimal('qty', 8, 2);
+            $table->string('name', 255);
+            $table->string('name_bengali', 255);
+            $table->decimal('qty', 10, 2);
             $table->string('unit', 191);
             $table->string('category', 191)->nullable();
             $table->string('image', 191)->nullable();

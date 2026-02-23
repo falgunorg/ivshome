@@ -40,6 +40,7 @@
                     <th>Qty.</th>
                     <th>In Date</th>
                     <th>By</th>
+                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -82,8 +83,11 @@
         <td>{{ $i->supplier->name }}</td>
         <td>{{ $i->qty }}</td>
         <td>{{ $i->date }}</td>
+        <td>{{ $i->status }}</td>
         <td>
+            @if($i->status =='approved')
             <a href="{{ route('exportPDF.itemPurchase', [ 'id' => $i->id ]) }}" class="btn btn-sm btn-danger">Export Invoice</a>
+            @endif
         </td>
         </tbody>
         @endforeach
@@ -166,6 +170,7 @@
             {data: 'qty', name: 'qty'},
             {data: 'date', name: 'date'},
             {data: 'by', name: 'by'},
+            {data: 'status', name: 'status'},
             {data: 'action', name: 'action', orderable: false, searchable: false}
         ]
     });

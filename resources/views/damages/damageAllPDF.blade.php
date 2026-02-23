@@ -45,6 +45,7 @@
 
 <table id="item-purchase" width="100%">
     <thead>
+        <tr><td colspan="7"><strong>Damage & Losses</strong></td></tr>
         <tr>
             <td>ID</td>
             <td>Item</td>
@@ -52,6 +53,7 @@
             <td>Quantity</td>
             <td>Date</td>
             <td>By</td>
+            <td>Status</td>
         </tr>
     </thead>
     @foreach($damage as $p)
@@ -63,6 +65,7 @@
             <td>{{ $p->qty }}</td>
             <td>{{ $p->date }}</td>
             <td>{{ $p->user->name }}</td>
+            <td>{{ $p->status }}</td>
         </tr>
     </tbody>
     @endforeach

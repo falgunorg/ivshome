@@ -25,8 +25,11 @@
 
             <table border="0" id="table-data" width="100%">
                 <tr>
+                    <td colspan="4"><b>Damage & Losses</b></td>  
+                </tr>
+                <tr>
                     <td width="70px"><b>Invoice</b></td>
-                    <td>: ##{{ $damage->id }}</td>
+                    <td>: #{{ $damage->id }}</td>
                     <td width="30px"><b>Created</b></td>
                     <td>: {{ $damage->date }}</td>
                 </tr>
@@ -54,7 +57,7 @@
 
             <table border="0" width="80%">
                 <tr align="right">
-                    <td>I M S</td>
+                    <td>5SHOME.APP</td>
                 </tr>
             </table>
 
