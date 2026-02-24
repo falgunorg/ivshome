@@ -9,8 +9,6 @@
                         <span aria-hidden="true">&times;</span></button>
                     <h3 class="modal-title"></h3>
                 </div>
-
-
                 <div class="modal-body">
                     <input type="hidden" id="id" name="id">
                     <div class="box-body">

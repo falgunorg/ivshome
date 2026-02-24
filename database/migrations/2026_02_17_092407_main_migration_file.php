@@ -171,17 +171,33 @@ return new class extends Migration {
         // 6. Default Data Seed
         DB::table('users')->insert([
             [
-                'name' => 'Admin',
-                'email' => 'admin@mail.com',
-                'password' => bcrypt('admin1234'),
+                'name' => 'Mustafa Mahmud',
+                'email' => 'md',
+                'password' => bcrypt('F@1gunHome@!@#'),
                 'created_at' => now(),
                 'updated_at' => now(),
                 'role' => 'admin'
             ],
             [
-                'name' => 'Staff',
-                'email' => 'staff@mail.com',
-                'password' => bcrypt('staff1234'),
+                'name' => 'Omar Faruk',
+                'email' => 'faruk',
+                'password' => bcrypt('F@1gunHome@!@#'),
+                'created_at' => now(),
+                'updated_at' => now(),
+                'role' => 'admin'
+            ],
+            [
+                'name' => 'Nasir',
+                'email' => 'nasir',
+                'password' => bcrypt('nasir'),
+                'created_at' => now(),
+                'updated_at' => now(),
+                'role' => 'staff'
+            ],
+            [
+                'name' => 'Al Amin',
+                'email' => 'alamin',
+                'password' => bcrypt('alamin'),
                 'created_at' => now(),
                 'updated_at' => now(),
                 'role' => 'staff'

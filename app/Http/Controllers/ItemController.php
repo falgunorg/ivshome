@@ -275,18 +275,42 @@ class ItemController extends Controller {
                             return '<img class="img-thumbnail" width="50" src="' . $item->show_photo . '" alt="Photo">';
                         })
                         ->addColumn('action', function ($item) {
-                            // 1. Buttons visible to every logged-in user (Show & Print)
-                            $html = '<a href="' . route('items.show', $item->id) . '" class="btn btn-info btn-xs"><i class="glyphicon glyphicon-eye-open"></i></a> ' .
-                                    '<a onclick="printLabel(' . $item->id . ')" class="btn btn-warning btn-xs"><i class="glyphicon glyphicon-print"></i></a> ';
 
-                            // 2. Show Edit button ONLY if the item belongs to the logged-in user
-                            if (auth()->check() && $item->user_id == auth()->id()) {
-                                $html .= '<a onclick="editForm(' . $item->id . ')" class="btn btn-primary btn-xs"><i class="glyphicon glyphicon-edit"></i></a> ';
-                            }
+                            // Buttons visible to every logged-in user (Show & Print)
+                            $html = '<a href="' . route('items.show', $item->id) . '" class="btn btn-info btn-xs">
+                <i class="glyphicon glyphicon-eye-open"></i>
+             </a> 
+             <a onclick="printLabel(' . $item->id . ')" class="btn btn-warning btn-xs">
+                <i class="glyphicon glyphicon-print"></i>
+             </a> ';
 
-                            // 3. Show Delete button ONLY if the user is an admin
-                            if (auth()->check() && auth()->user()->role == 'admin') {
-                                $html .= '<a onclick="deleteData(' . $item->id . ')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i></a>';
+                            if (auth()->check()) {
+
+                                // Admin can always edit/delete
+                                if (auth()->user()->role == 'admin') {
+                                    $html .= '<a onclick="editForm(' . $item->id . ')" class="btn btn-primary btn-xs">
+                        <i class="glyphicon glyphicon-edit"></i>
+                      </a> ';
+                                    $html .= '<a onclick="deleteData(' . $item->id . ')" class="btn btn-danger btn-xs">
+                        <i class="glyphicon glyphicon-trash"></i>
+                      </a>';
+                                }
+
+                                // Staff can edit/delete only if:
+                                // - status is not approved
+                                // - and item belongs to them
+                                elseif (
+                                        auth()->user()->role == 'staff' &&
+                                        $item->status != 'approved' &&
+                                        auth()->user()->id == $item->user_id
+                                ) {
+                                    $html .= '<a onclick="editForm(' . $item->id . ')" class="btn btn-primary btn-xs">
+                        <i class="glyphicon glyphicon-edit"></i>
+                      </a> ';
+                                    $html .= '<a onclick="deleteData(' . $item->id . ')" class="btn btn-danger btn-xs">
+                        <i class="glyphicon glyphicon-trash"></i>
+                      </a>';
+                                }
                             }
 
                             return $html;
