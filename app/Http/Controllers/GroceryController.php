@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use OpenAI\Laravel\Facades\OpenAI;
 use Gemini\Laravel\Facades\Gemini;
+use Illuminate\Support\Facades\Auth;
 
 class GroceryController extends Controller {
 
@@ -31,6 +32,7 @@ class GroceryController extends Controller {
 
     public function store(Request $request) {
         $data = $request->all();
+        $data['user_id'] = Auth::id();
         if ($request->hasFile('image')) {
             $data['image'] = '/upload/groceries/' . time() . '.' . $request->image->extension();
             $request->image->move(public_path('upload/groceries'), $data['image']);

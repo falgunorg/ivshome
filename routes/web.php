@@ -92,7 +92,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/requests/damage/{id}/approve', 'RequestController@approveDamage')->name('requests.damage.approve');
     Route::post('/requests/item/{id}/approve', 'RequestController@approveItem')->name('requests.item.approve');
     Route::post('/requests/item/{id}/reject', 'RequestController@rejectItem')->name('requests.item.reject');
-
 // Notice the names here match the Blade parameters
     Route::delete('/requests/{id}/{type}/decline', 'RequestController@declineRequest')->name('requests.decline');
+    
+    
+     Route::resource('requisitions', 'RequisitionController');
+    Route::get('/apiRequisitions', 'ItemController@apiItems')->name('api.items');
 });

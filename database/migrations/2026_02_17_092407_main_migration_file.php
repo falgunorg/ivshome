@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->rememberToken();
             $table->enum('role', ['admin', 'staff'])->default('staff');
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('customers', function (Blueprint $table) {
@@ -29,6 +30,7 @@ return new class extends Migration {
             $table->string('email', 191)->nullable();
             $table->string('phone', 191)->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('suppliers', function (Blueprint $table) {
@@ -38,6 +40,7 @@ return new class extends Migration {
             $table->string('email', 191)->nullable();
             $table->string('phone', 191)->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('item_types', function (Blueprint $table) {
@@ -45,18 +48,77 @@ return new class extends Migration {
             $table->string('name', 191);
             $table->string('code', 191)->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('groceries', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->increments('id');
+            $table->unsignedInteger('user_id');
+            $table->string('serial_number', 191)->nullable();
             $table->string('name', 255);
-            $table->string('name_bengali', 255);
+            $table->string('bengali_name', 255);
             $table->decimal('qty', 10, 2);
             $table->string('unit', 191);
             $table->string('category', 191)->nullable();
             $table->string('image', 191)->nullable();
             $table->integer('min_stock')->default(0);
             $table->timestamps();
+            $table->softDeletes();
+        });
+        Schema::create('grocery_requisitions', function (Blueprint $table) {
+            $table->id();
+            $table->string('requisition_no')->unique();
+            $table->unsignedInteger('user_id');
+            $table->date('requested_date');
+            $table->enum('status', ['pending', 'approved', 'partial', 'completed'])->default('pending');
+            $table->unsignedInteger('approved_by')->nullable(); // Add ->nullable()
+            $table->date('approved_at')->nullable();
+            $table->text('remarks')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
+            $table->foreign('user_id')->references('id')->on('users');
+        });
+
+        Schema::create('grocery_requisition_items', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('grocery_requisition_id');
+            $table->unsignedInteger('grocery_id');
+            $table->decimal('qty_requested', 10, 2);
+            $table->decimal('qty_received', 10, 2)->default(0); // Tracks progress
+            $table->timestamps();
+            $table->softDeletes();
+            $table->foreign('grocery_requisition_id')->references('id')->on('grocery_requisitions')->onDelete('cascade');
+            $table->foreign('grocery_id')->references('id')->on('groceries');
+        });
+
+        Schema::create('grocery_receives', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedInteger('user_id');
+            $table->unsignedBigInteger('grocery_requisition_item_id'); // Link to the specific line
+            $table->unsignedInteger('grocery_id');
+            $table->decimal('received_qty', 10, 2);
+            $table->decimal('current_stock', 10, 2);
+            $table->date('purchase_date');
+            $table->date('expiry_date');
+            $table->string('lot_number')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
+            $table->foreign('grocery_requisition_item_id')->references('id')->on('grocery_requisition_items');
+            $table->foreign('grocery_id')->references('id')->on('groceries');
+        });
+
+        Schema::create('grocery_issues', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedInteger('grocery_id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedBigInteger('receive_id')->nullable(); // Optional: Link to specific batch (FIFO)
+            $table->decimal('issued_qty', 10, 2);
+            $table->date('issue_date');
+            $table->string('issued_to')->nullable(); // Department or Person
+            $table->timestamps();
+            $table->softDeletes();
+            $table->foreign('grocery_id')->references('id')->on('groceries');
+            $table->foreign('receive_id')->references('id')->on('grocery_receives');
         });
 
         Schema::create('recipes', function (Blueprint $table) {
@@ -66,6 +128,7 @@ return new class extends Migration {
             $table->text('note')->nullable();
             $table->string('image', 191)->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         // 2. Structural Tables
@@ -75,6 +138,7 @@ return new class extends Migration {
             $table->string('name', 191)->nullable();
             $table->string('code', 191)->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('cabinets', function (Blueprint $table) {
@@ -84,6 +148,7 @@ return new class extends Migration {
             $table->string('title', 191)->nullable();
             $table->string('code', 191)->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('drawers', function (Blueprint $table) {
@@ -91,6 +156,7 @@ return new class extends Migration {
             $table->unsignedInteger('cabinet_id');
             $table->string('title', 191);
             $table->timestamps();
+            $table->softDeletes();
         });
 
         // 3. Core Items Table
@@ -98,6 +164,7 @@ return new class extends Migration {
             $table->increments('id');
             $table->string('serial_number', 191)->nullable();
             $table->unsignedInteger('user_id');
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->string('item_type', 191)->nullable();
             $table->string('name', 191);
             $table->string('description', 191)->nullable();
@@ -111,19 +178,22 @@ return new class extends Migration {
             $table->integer('cabinet_id')->nullable();
             $table->integer('drawer_id')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         // 4. Transactional/Relational Tables
         Schema::create('damages', function (Blueprint $table) {
             $table->increments('id');
+
             $table->unsignedInteger('item_id');
             $table->unsignedInteger('user_id');
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->string('image', 191)->nullable();
             $table->integer('qty');
             $table->date('date');
             $table->string('remarks', 191)->nullable();
             $table->timestamps();
-
+            $table->softDeletes();
             $table->foreign('item_id')->references('id')->on('items')->onDelete('cascade');
         });
 
@@ -133,17 +203,19 @@ return new class extends Migration {
             $table->unsignedInteger('user_id');
             $table->string('message', 191)->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('item_purchase', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('item_id');
             $table->unsignedInteger('supplier_id');
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->unsignedInteger('user_id');
             $table->integer('qty');
             $table->date('date');
             $table->timestamps();
-
+            $table->softDeletes();
             $table->foreign('item_id')->references('id')->on('items')->onDelete('cascade');
             $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
         });
@@ -152,11 +224,12 @@ return new class extends Migration {
             $table->increments('id');
             $table->unsignedInteger('item_id');
             $table->unsignedInteger('customer_id');
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->unsignedInteger('user_id');
             $table->integer('qty');
             $table->date('date');
             $table->timestamps();
-
+            $table->softDeletes();
             $table->foreign('item_id')->references('id')->on('items')->onDelete('cascade');
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
         });
@@ -222,6 +295,10 @@ return new class extends Migration {
         Schema::dropIfExists('locations');
         Schema::dropIfExists('recipes');
         Schema::dropIfExists('groceries');
+        Schema::dropIfExists('grocery_issues');
+        Schema::dropIfExists('grocery_receives');
+        Schema::dropIfExists('grocery_requisitions');
+        Schema::dropIfExists('grocery_requisition_items');
         Schema::dropIfExists('item_types');
         Schema::dropIfExists('suppliers');
         Schema::dropIfExists('customers');

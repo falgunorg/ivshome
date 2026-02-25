@@ -7,6 +7,7 @@ use App\Item;
 use App\ItemSale;
 use App\ItemPurchase;
 use App\Damage;
+
 use DB;
 
 class RequestController extends Controller {
