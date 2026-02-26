@@ -13,5 +13,14 @@ class GroceryReceive extends Model {
 
     protected $table = 'grocery_receives';
     protected $dates = ['deleted_at'];
-    protected $fillable = ['user_id', 'grocery_requisition_item_id ', 'grocery_id ', 'received_qty', 'current_stock', 'purchase_date', 'expiry_date', 'lot_number'];
+    protected $fillable = [
+        'user_id',
+        'grocery_requisition_item_id',
+        'grocery_id',
+        'received_qty',
+        'current_stock',
+        'purchase_date',
+        'expiry_date',
+        'lot_number',
+    ];
 }

@@ -6,7 +6,7 @@
 <section class="content">
     <div class="row">
         <div class="col-md-12">
-            <form action="{{ route('requisitions.store') }}" method="POST" id="requisitionForm">
+            <form action="{{ route('requisitions.store') }}" method="POST">
                 @csrf
                 <div class="box box-success shadow">
                     <div class="box-header with-border">
@@ -35,39 +35,30 @@
                             <table class="table table-hover table-bordered" id="items_table">
                                 <thead class="bg-gray">
                                     <tr>
-                                        <th width="45%">Grocery Item</th>
-                                        <th width="15%">Current Stock</th>
+                                        <th width="60%">Grocery Item</th>
                                         <th width="30%">Quantity</th>
                                         <th width="10%" class="text-center">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {{-- The first row --}}
                                     <tr class="item-row">
                                         <td>
-                                            <select name="items[0][grocery_id]" class="form-control select2 item-select" required>
+                                            <select name="items[0][grocery_id]" class="form-control select2 item-select" style="width: 100%;" required>
                                                 <option value="">-- Search Item --</option>
                                                 @foreach($groceries as $item)
-                                                {{-- Improvement 4: Bengali Name in Select --}}
-                                                <option value="{{ $item->id }}" 
-                                                        data-unit="{{ $item->unit }}" 
-                                                        data-stock="{{ $item->stock ?? 0 }}">
-                                                    {{ $item->name }} {{ $item->bengali_name ? "($item->bengali_name)" : '' }}
-                                                </option>
+                                                <option value="{{ $item->id }}" data-unit="{{ $item->unit }}">{{ $item->name }}</option>
                                                 @endforeach
                                             </select>
                                         </td>
                                         <td>
-                                            {{-- Improvement 5: Current Qty Column --}}
-                                            <input type="text" class="form-control stock-display" readonly placeholder="0">
-                                        </td>
-                                        <td>
                                             <div class="input-group">
-                                                {{-- Improvement 3: Min 0.01 prevents 0 or negative --}}
-                                                <input type="number" name="items[0][qty]" class="form-control" step="0.01" min="0.01" required placeholder="0.00">
+                                                <input type="number" name="items[0][qty]" class="form-control" placeholder="0.00" step="0.01" min="0.01" required>
                                                 <span class="input-group-addon unit-label">Unit</span>
                                             </div>
                                         </td>
                                         <td class="text-center">
+                                            {{-- First row trash is disabled to ensure at least one item --}}
                                             <button type="button" class="btn btn-danger btn-sm disabled"><i class="fa fa-trash"></i></button>
                                         </td>
                                     </tr>
@@ -92,21 +83,16 @@
     </div>
 </section>
 
-{{-- Hidden Template --}}
+{{-- Template for new rows (hidden from view) --}}
 <table style="display:none;">
     <tr id="row_template">
         <td>
             <select class="form-control item-select-dynamic" style="width: 100%;">
                 <option value="">-- Search Item --</option>
                 @foreach($groceries as $item)
-                <option value="{{ $item->id }}" data-unit="{{ $item->unit }}" data-stock="{{ $item->stock ?? 0 }}">
-                    {{ $item->name }} {{ $item->bengali_name ? "($item->bengali_name)" : '' }}
-                </option>
+                <option value="{{ $item->id }}" data-unit="{{ $item->unit }}">{{ $item->name }}</option>
                 @endforeach
             </select>
-        </td>
-        <td>
-            <input type="text" class="form-control stock-display" readonly placeholder="0">
         </td>
         <td>
             <div class="input-group">
@@ -119,18 +105,18 @@
         </td>
     </tr>
 </table>
+
 @endsection
 
 @section('bot')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-{{-- SweetAlert2 for nice duplicate alerts --}}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 $(document).ready(function () {
     let rowIdx = 1;
 
+    // Helper to initialize Select2
     function initSelect2(element) {
         $(element).select2({
             placeholder: "-- Search Item --",
@@ -138,112 +124,45 @@ $(document).ready(function () {
         });
     }
 
-    // Initialize the very first row
+    // Initialize the first row
     initSelect2('.select2');
 
-    // --- ADD ROW LOGIC ---
+    // ADD ROW LOGIC
     $('#add_row').on('click', function (e) {
         e.preventDefault();
-        let $newRow = $('#row_template').clone().removeAttr('id');
 
-        // Apply names and classes
+        // Clone the template row
+        let $newRow = $('#row_template').clone();
+        $newRow.removeAttr('id'); // Remove the template ID
+
+        // Update the names with the current index
         $newRow.find('.item-select-dynamic')
                 .attr('name', `items[${rowIdx}][grocery_id]`)
-                .addClass('select2-dynamic item-select-field') // Add a common class for validation
+                .addClass('select2-dynamic')
                 .prop('required', true);
 
         $newRow.find('.qty-input')
                 .attr('name', `items[${rowIdx}][qty]`)
-                .addClass('qty-input-field') // Add a common class for validation
                 .prop('required', true);
 
+        // Append to the table
         $('#items_table tbody').append($newRow);
+
+        // Initialize Select2 on the newly added row specifically
         initSelect2($newRow.find('.select2-dynamic'));
+
         rowIdx++;
     });
 
-    // --- REMOVE ROW LOGIC ---
+    // REMOVE ROW LOGIC
     $(document).on('click', '.remove-row', function () {
         $(this).closest('tr').remove();
     });
 
-    // --- ITEM SELECTION LOGIC (Stock, Unit, Duplicate Check) ---
+    // UNIT LABEL LOGIC
     $(document).on('change', '.item-select, .item-select-dynamic', function () {
-        let $this = $(this);
-        let val = $this.val();
-        let $row = $this.closest('tr');
-
-        if (!val) {
-            $row.find('.stock-display').val('');
-            $row.find('.unit-label').text('Unit');
-            return;
-        }
-
-        // Duplicate Check
-        let isDuplicate = false;
-        $('.item-select, .item-select-dynamic').not($this).each(function () {
-            if ($(this).val() == val) {
-                isDuplicate = true;
-            }
-        });
-
-        if (isDuplicate) {
-            Swal.fire('Duplicate Item', 'This item is already added to the list.', 'warning');
-            $this.val(null).trigger('change.select2');
-            $row.find('.stock-display').val('');
-            return;
-        }
-
-        // Set Stock and Unit
-        let selected = $this.find(':selected');
-        $row.find('.stock-display').val(selected.data('stock'));
-        $row.find('.unit-label').text(selected.data('unit') || 'Unit');
-
-        // Trigger a re-check of the quantity color
-        $row.find('input[type="number"]').trigger('input');
-    });
-
-    // --- STOCK OVER-LIMIT VISUAL WARNING ---
-    $(document).on('input', 'input[type="number"]', function () {
-        let $row = $(this).closest('tr');
-        let qty = parseFloat($(this).val()) || 0;
-        let stock = parseFloat($row.find('.stock-display').val()) || 0;
-
-//        if (qty > stock) {
-//            $(this).css('border-color', '#dd4b39'); // Red border
-//            $(this).css('background-color', '#fff5f5');
-//        } else {
-//            $(this).css('border-color', '#ccc');
-//            $(this).css('background-color', '#fff');
-//        }
-    });
-
-    // --- FINAL FORM VALIDATION ---
-    $('#requisitionForm').on('submit', function (e) {
-        let valid = true;
-        let errorMessage = "";
-
-        // Check if at least one item is selected
-        if ($('#items_table tbody tr').length === 0) {
-            e.preventDefault();
-            Swal.fire('Error', 'Please add at least one item.', 'error');
-            return;
-        }
-
-        // Check every quantity input
-        $('input[name*="[qty]"]').each(function () {
-            let val = parseFloat($(this).val());
-            if (isNaN(val) || val <= 0) {
-                valid = false;
-                errorMessage = "Please ensure all quantities are greater than zero.";
-                $(this).focus();
-            }
-        });
-
-        if (!valid) {
-            e.preventDefault();
-            Swal.fire('Invalid Quantity', errorMessage, 'error');
-        }
+        let unit = $(this).find(':selected').data('unit') || 'Unit';
+        $(this).closest('tr').find('.unit-label').text(unit);
     });
 });
 </script>
@@ -254,15 +173,17 @@ $(document).ready(function () {
     }
     .table > thead > tr > th {
         vertical-align: middle;
-        background: #f8f9fa;
-        color: #333;
+        background-color: #f4f4f4;
     }
-    .stock-display {
-        background-color: #eee !important;
+    .btn-lg {
+        padding: 10px 30px;
         font-weight: bold;
-        color: #555;
-        text-align: center;
     }
+    hr {
+        border-top: 1px solid #eee;
+        margin: 15px 0;
+    }
+    /* Fix for Select2 height in Bootstrap */
     .select2-container .select2-selection--single {
         height: 34px !important;
         border: 1px solid #ccc !important;

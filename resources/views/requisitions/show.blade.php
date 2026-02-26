@@ -40,9 +40,9 @@
                 @foreach($requisition->items as $index => $item)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $item->grocery->name }}</td>
-                    <td class="text-center">{{ $item->qty_requested }}</td>
-                    <td class="text-center">{{ $item->qty_received }}</td>
+                    <td>{{ $item->grocery->name }} ({{$item->grocery->bengali_name}})</td>
+                    <td class="text-center">{{ $item->qty_requested }} {{$item->grocery->unit}}</td>
+                    <td class="text-center">{{ $item->qty_received }} {{$item->grocery->unit}}</td>
                     <td>
                         @php 
                         $percent = ($item->qty_requested > 0) ? ($item->qty_received / $item->qty_requested) * 100 : 0;

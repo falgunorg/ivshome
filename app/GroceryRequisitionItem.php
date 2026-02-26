@@ -18,4 +18,8 @@ class GroceryRequisitionItem extends Model {
     public function grocery() {
         return $this->belongsTo(Grocery::class);
     }
+
+    public function requisition() {
+        return $this->belongsTo(GroceryRequisition::class, 'grocery_requisition_id');
+    }
 }

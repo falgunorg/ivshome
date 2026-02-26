@@ -94,8 +94,18 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/requests/item/{id}/reject', 'RequestController@rejectItem')->name('requests.item.reject');
 // Notice the names here match the Blade parameters
     Route::delete('/requests/{id}/{type}/decline', 'RequestController@declineRequest')->name('requests.decline');
-    
-    
-     Route::resource('requisitions', 'RequisitionController');
-    Route::get('/apiRequisitions', 'ItemController@apiItems')->name('api.items');
+    Route::resource('requisitions', 'RequisitionController');
+
+    // Requisition Approval
+    Route::patch('/requisitions/{id}/approve', 'RequisitionController@approve')->name('requisitions.approve');
+
+    // Receiving Items
+    Route::get('/receives', 'RequisitionController@indexReceive')->name('receives');
+    Route::get('/receives/create/{requisition_id?}', 'RequisitionController@createReceive')->name('receives.create');
+    Route::post('/receives/store', 'RequisitionController@storeReceive')->name('receives.store');
+
+    // Issuing Items
+    Route::get('/issues', 'RequisitionController@indexIssue')->name('issues');
+    Route::get('/issues/create', 'RequisitionController@createIssue')->name('issues.create');
+    Route::post('/issues/store', 'RequisitionController@storeIssue')->name('issues.store');
 });
